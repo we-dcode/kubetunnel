@@ -1,26 +1,42 @@
 package kube_test
 
 import (
+	"github.com/stretchr/testify/assert"
+	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
 	"testing"
 )
 
-func TestInstallHelm(t *testing.T) {
+func TestGetServiceWithSinglePortOnDefaultNamespace(t *testing.T) {
 
-	//client := kubeclient.MustNew()
-	//
-	//client.MustInstallFrpServer("https://github.com/we-dcode/kube-tunnel/raw/feature/frps-chart/kube-tunnel-1.0.1.tgz", &models.FrpServerValues{
-	//	Namespace:         "default",
-	//	Ports:             models.Ports{
-	//		Values: []string{"8080"},
-	//	},
-	//	ServiceName:       "organizations",
-	//	PodSelectorLabels: []models.PodSelectorLabel{
-	//	{
-	//		Key: "app",
-	//		Value: "organizations",
-	//	}},
-	//})
+	client := kube.MustNew("")
 
-	//assert.Equal(t, count, atomic.LoadInt32(&count))
+	context, err := client.GetServiceContext("kubetunnel-svc")
+
+	assert.NoError(t, err)
+	assert.NotNil(t, context)
+	assert.Len(t, context.Ports, 1)
 }
 
+func TestGetServiceWithMultiplePortsOnDefaultNamespace(t *testing.T) {
+
+	client := kube.MustNew("")
+
+	context, err := client.GetServiceContext("kubetunnel-multi-svc")
+
+	assert.NoError(t, err)
+	assert.NotNil(t, context)
+	assert.Len(t, context.Ports, 2)
+}
+
+
+func TestGetServiceFromExplicitNamespaceWithMultipleLables(t *testing.T) {
+
+	client := kube.MustNew("kubetunnel-explicit")
+
+	context, err := client.GetServiceContext("kubetunnel-svc")
+
+	assert.NoError(t, err)
+	assert.NotNil(t, context)
+	assert.Len(t, context.Ports, 1)
+	assert.Len(t, context.LabelSelector, 2)
+}

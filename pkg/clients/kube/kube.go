@@ -2,6 +2,7 @@ package kube
 
 import (
 	"context"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -9,15 +10,16 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-type KubeClient struct {
+type Kube struct {
 
 	kubeConfig clientcmd.ClientConfig
 	kubeClient kubernetes.Interface
-	config *rest.Config
+	Config *rest.Config
+	Namespace string
 }
 
 
-func MustNew() *KubeClient {
+func MustNew(namespace string) *Kube {
 
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
 	configOverrides := &clientcmd.ConfigOverrides{}
@@ -32,27 +34,32 @@ func MustNew() *KubeClient {
 		log.Panicf("err: unable to create kube client. \"%s\"", err.Error())
 	}
 
-	return &KubeClient{
+	if len(namespace) == 0 {
+		namespace, _, _ = kubeConfig.Namespace()
+	}
+
+	return &Kube{
 		kubeConfig,
 		kubeClient,
 		config,
+		namespace,
 	}
 }
 
-func (k *KubeClient) GetServiceContext(name string, namespace string) ServiceContext  {
+func (k *Kube) GetServiceContext(name string) (*ServiceContext, error)  {
 
-	if len(namespace) == 0 {
-		namespace, _, _ = k.kubeConfig.Namespace()
-	}
-
-	svc, err := k.kubeClient.CoreV1().Services(namespace).Get(context.Background(), name, v1.GetOptions{})
+	svc, err := k.kubeClient.CoreV1().Services(k.Namespace).Get(context.Background(), name, v1.GetOptions{})
 	if err != nil {
-		log.Panicf("namespace: '%s' svc: '%s' not found at host: '%s'", namespace, name, k.config.Host)
+
+		err = fmt.Errorf("namespace: '%s' svc: '%s' not found at host: '%s'", k.Namespace, name, k.Config.Host)
+		return nil, err
 	}
 
-	return ServiceContext{
+	ctx := ServiceContext{
 		LabelSelector: svc.Spec.Selector,
 		Ports:         svc.Spec.Ports,
 	}
+
+	return &ctx, nil
 }
 

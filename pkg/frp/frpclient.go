@@ -1,4 +1,4 @@
-package pkg
+package frp
 
 import(
 	"github.com/fatedier/frp/pkg/config"
@@ -8,7 +8,7 @@ type FrpClient struct {
 
 }
 
-func New() *FrpClient{
+func New() *FrpClient {
 
 	tcpProxyConf := config.TCPProxyConf{
 		BaseProxyConf: config.BaseProxyConf{
@@ -27,6 +27,6 @@ func New() *FrpClient{
 		RemotePort:    0,
 	}
 
-
+	_ = tcpProxyConf
 	return nil
 }

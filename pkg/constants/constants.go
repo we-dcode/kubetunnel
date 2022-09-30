@@ -1,6 +1,7 @@
 package constants
 
 const (
-	FrpServerChart = ""
+	DcodeChartRepo        = "https://we-dcode.github.io/kube-tunnel/"
+	KubeTunnelChartName   = "we-dcode/kube-tunnel"
 	GarbageCollectorChart = ""
 )

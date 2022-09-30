@@ -1,63 +1,90 @@
 package helm
 
 import (
+	"context"
 	"fmt"
 	helmclient "github.com/mittwald/go-helm-client"
+	log "github.com/sirupsen/logrus"
+	"github.com/we-dcode/kube-tunnel/pkg/clients/helm/models"
+	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
 	"github.com/we-dcode/kube-tunnel/pkg/constants"
-	"github.com/we-dcode/kube-tunnel/pkg/models"
+	"gopkg.in/yaml.v3"
+	"helm.sh/helm/v3/pkg/repo"
 )
 
 type Helm struct {
+	namespace string
+	helmClient helmclient.Client
+}
+
+type EMPTY struct {
 
 }
 
-func NewHelmClient()  {
+func MustNew(kube *kube.Kube) *Helm {
 
-	//helmclient.NewClientFromKubeConf(config, helmclient.RestConfClientOptions{
-	//	Options:    nil,
-	//	RestConfig: nil,
-	//})
-	//
-	//helmClient, err := helmclient.New(&helmclient.Options{
-	//	Debug:            false,
-	//	Linting:          false,
-	//	DebugLog:         nil,
-	//	RegistryConfig:   "",
-	//	Output:           nil,
-	//})
-}
+	client, err := helmclient.NewClientFromRestConf(&helmclient.RestConfClientOptions{
+		Options: &helmclient.Options{
+			Namespace:        kube.Namespace,
+		},
+		RestConfig: kube.Config,
+	})
 
-
-func (c *Helm) MustInstallFrpServer(chartUrl string, values *models.FrpServerValues)  {
-
-	valuesYaml, err := yaml.Marshal(values)
 	if err != nil {
-		log.Panicf("err: fail to parse values.yaml more info: %s", err.Error())
+		log.Panicf("fail creating helm client, more info: '%s'", err.Error())
 	}
 
-	if len(chartUrl) == 0 {
-		chartUrl = constants.FrpServerChart
+	err = client.AddOrUpdateChartRepo(repo.Entry{
+		Name: "we-decode",
+		URL:  constants.DcodeChartRepo,
+	})
+
+	if err != nil {
+		log.Panicf("fail adding Dcode's chart repo, more info: '%s'", err.Error())
+	}
+
+	return &Helm{
+		kube.Namespace,
+		client,
+	}
+}
+
+
+func (c *Helm) InstallOrUpgradeFrpServer(chartVersion string, values *models.FrpServerValues) error {
+
+	releaseName := fmt.Sprintf("kubetunnel-%s", values.ServiceName)
+
+	return install(c, constants.KubeTunnelChartName, chartVersion, releaseName, values)
+}
+
+
+func (c *Helm) InstallOrUpgradeGC(chartVersion string) error{
+
+	releaseName := "kubetunnel-gc"
+
+	return install(c, constants.KubeTunnelChartName, chartVersion, releaseName, EMPTY{})
+}
+
+func install(c *Helm, chartName string, chartVersion string, releaseName string, values interface{}) error {
+	valuesYaml, err := yaml.Marshal(values)
+	if err != nil {
+		return fmt.Errorf("err: fail to parse values.yaml more info: '%s'", err.Error())
 	}
 
 	chartSpec := helmclient.ChartSpec{
-		ReleaseName: fmt.Sprintf("kubetunnel-frpserver-%s", values.ServiceName),
-		ChartName:   chartUrl,
-		Namespace:   values.Namespace,
-		UpgradeCRDs: true,
+		ReleaseName: releaseName,
+		Recreate:    true,
+		ChartName:   chartName,
+		//Version:     chartVersion,
+		Namespace:   c.namespace,
+		UpgradeCRDs: false,
 		Wait:        true,
-		ValuesYaml: string(valuesYaml),
+		ValuesYaml:  string(valuesYaml),
 	}
 
-
-
-	// Install a chart release.
-	// Note that helmclient.Options.Namespace should ideally match the namespace in chartSpec.Namespace.
-	if _, err := helmClient.InstallOrUpgradeChart(context.Background(), &chartSpec, nil); err != nil {
-		log.Panicf("err: fail installing frp chart. more info: %s", err.Error())
+	if _, err := c.helmClient.InstallOrUpgradeChart(context.Background(), &chartSpec, nil); err != nil {
+		return fmt.Errorf("err: fail installing %s chart. more info: %s", chartName, err.Error())
 	}
-}
 
-
-func (c *Helm) InstallGarbageCollector()  {
-
+	return nil
 }
