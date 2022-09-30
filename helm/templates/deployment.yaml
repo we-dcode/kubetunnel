@@ -1,16 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "frps.fullname" . }}
+  name: {{ include "kubetunnel.fullname" . }}-{{ .Values.env_service_name }}
   labels:
-    {{- include "frps.labels" . | nindent 4 }}
+    {{- include "kubetunnel.labels" . | nindent 4 }}
+    {{- range $key, $val := .Values.podSelectorLabels }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end}}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "frps.selectorLabels" . | nindent 6 }}
+      {{- include "kubetunnel.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,26 +21,45 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "frps.selectorLabels" . | nindent 8 }}
+        {{- include "kubetunnel.labels" . | nindent 8 }}
+        meta.helm.sh/release-name:  {{ .Release.Name }}
+        {{- range $key, $val := .Values.podSelectorLabels }}
+        {{ $key }}: {{ $val | quote }}
+        {{- end}}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "frps.serviceAccountName" . }}
+      serviceAccountName: {{ include "kubetunnel.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
+        - name: kube-exec
+          image: bitnami/kubectl
+          command:
+          - bash
+          - -c
+          args: 
+          - sleep infinity
+          readinessProbe:
+            exec:
+              command:
+              - /bin/bash
+              - /scripts/health.sh
+            initialDelaySeconds: 0
+            periodSeconds: 5
+          envFrom:
+          - configMapRef:
+              name: kube-tunnel-{{ .Values.env_service_name }}-env
+          volumeMounts:
+            - mountPath: /scripts
+              name: frp-health
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{with .Values.envSecretName}}
-          envFrom:
-          - secretRef:
-              name: {{.}}
-          {{end}}
           volumeMounts:
             - mountPath: /etc/frp
               name: frp-conf
@@ -67,5 +89,13 @@ spec:
             {{- if .Values.configSecretName}}
             secretName: {{.Values.configSecretName }}
             {{- else}}
-            secretName: {{ include "frps.fullname" . }}-config
+            secretName: {{ include "kubetunnel.fullname" . }}-{{ .Values.env_service_name }}-config
             {{- end}}
+        - name: frp-health
+          secret:
+            {{- if .Values.configSecretName}}
+            secretName: {{.Values.configSecretName }}
+            {{- else}}
+            secretName: {{ include "kubetunnel.fullname" . }}-{{ .Values.env_service_name }}-health
+            {{- end}}
+            defaultMode: 0777

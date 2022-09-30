@@ -1,5 +1,7 @@
 replicaCount: 1
 
+namespace: frps
+
 image:
   repository: wener/frps
   tag:
@@ -10,6 +12,33 @@ configInline: |
   [common]
   bind_port = 7000
   dashboard_port = 7500
+  
+  enable_prometheus = true
+
+podSelectorLabels:
+  app.kubernetes.io/instance: nginx
+  app.kubernetes.io/name: nginx
+
+env_service_name: nginx
+env_ports: "80,8080,8088"
+
+
+healthInline: |
+  #!/bin/bash
+  echo "Service is $SERVICE_NAME"
+  for port in ${PORTS//,/ }
+  do
+    echo "curl http://localhost:$port.."
+    if curl --fail http://localhost:$port; then
+      echo "succeeded with port $port!"
+    else
+      echo "failed port $port.."
+      kubectl patch svc ${SERVICE_NAME} --type=json -p="[{'op': 'remove', 'path': '/spec/selector/kube-tunnel'}]"
+      exit 1
+    fi
+  done
+  echo "All ports are successful. Patching service to kube-tunnel.."
+  kubectl patch service ${SERVICE_NAME} -p '{"spec":{"selector":{"kube-tunnel": "true"}}}'
 
 configSecretName: ""
 envSecretName: ""

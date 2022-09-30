@@ -1,6 +1,6 @@
 apiVersion: v2
-name: frps
-description: A Helm chart for frp server
+name: kube-tunnel
+description: A Helm chart for kube-tunnel server
 type: application
 version: 1.0.1
 appVersion: v0.37.0

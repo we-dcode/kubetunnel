@@ -1,0 +1,11 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "kubetunnel.serviceAccountName" . }}-role
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["services"]
+  verbs: ["get", "watch", "list", "update", "patch"]

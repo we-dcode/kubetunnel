@@ -1,1 +1,1 @@
-Enjoy frps !
+Enjoy kube-tunnel !

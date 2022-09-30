@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "kubetunnel.name" -}}
+{{- define "nginx.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,9 +10,9 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "kubetunnel.fullname" -}}
+{{- define "nginx.fullname" -}}
 {{- if .Values.fullnameOverride }}
-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}-{{ .Values.env_service_name }}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
 {{- $name := default .Chart.Name .Values.nameOverride }}
 {{- if contains $name .Release.Name }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "kubetunnel.chart" -}}
+{{- define "nginx.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "kubetunnel.labels" -}}
-helm.sh/chart: {{ include "kubetunnel.chart" . }}
-{{ include "kubetunnel.selectorLabels" . }}
+{{- define "nginx.labels" -}}
+helm.sh/chart: {{ include "nginx.chart" . }}
+{{ include "nginx.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,16 +45,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "kubetunnel.selectorLabels" -}}
-kube-tunnel: "true"
+{{- define "nginx.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "nginx.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "kubetunnel.serviceAccountName" -}}
+{{- define "nginx.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "kubetunnel.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "nginx.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}

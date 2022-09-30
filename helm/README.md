@@ -1,5 +1,6 @@
-# frps
+# kube-tunnel server
 
-HELM 部署 FRP 服务端。
-
-支持 Ingress 和 Port 定义。
+## 
+There are multiple roles installed in the namespace:
+1. List/Get/Watch/Delete pods and deployments for garbage collection pod
+2. Patch services for frps pod
