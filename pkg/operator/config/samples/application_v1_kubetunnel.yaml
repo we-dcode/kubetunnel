@@ -1,0 +1,9 @@
+apiVersion: application.dcode.tech/v1
+kind: Kubetunnel
+metadata:
+  name: kubetunnel-sample
+spec:
+  env_service_name: nginx
+  env_ports: "8081"
+  pod_selector_labels:
+    name: nginx
