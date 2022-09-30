@@ -3,6 +3,7 @@ module github.com/we-dcode/kube-tunnel
 go 1.18
 
 require (
+	github.com/fatedier/frp v0.44.0
 	github.com/mittwald/go-helm-client v0.11.3
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.4.0
@@ -26,6 +27,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/chai2010/gettext-go v0.0.0-20160711120539-c6fed771bfd5 // indirect
 	github.com/containerd/containerd v1.6.6 // indirect
+	github.com/coreos/go-oidc v2.2.1+incompatible // indirect
 	github.com/cyphar/filepath-securejoin v0.2.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/cli v20.10.17+incompatible // indirect
@@ -38,7 +40,8 @@ require (
 	github.com/emicklei/go-restful/v3 v3.8.0 // indirect
 	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20151013193312-d6023ce2651d // indirect
-	github.com/fatedier/frp v0.44.0 // indirect
+	github.com/fatedier/beego v0.0.0-20171024143340-6c6a4f5bd5eb // indirect
+	github.com/fatedier/golib v0.1.1-0.20220321042308-c306138b83ac // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/go-errors/errors v1.0.1 // indirect
@@ -47,6 +50,9 @@ require (
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.5 // indirect
 	github.com/go-openapi/swag v0.19.14 // indirect
+	github.com/go-playground/locales v0.13.0 // indirect
+	github.com/go-playground/universal-translator v0.17.0 // indirect
+	github.com/go-playground/validator/v10 v10.6.1 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -68,6 +74,7 @@ require (
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
+	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lib/pq v1.10.6 // indirect
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
@@ -92,6 +99,7 @@ require (
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/pquerna/cachecontrol v0.1.0 // indirect
 	github.com/prometheus/client_golang v1.12.2 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.32.1 // indirect
@@ -120,6 +128,8 @@ require (
 	google.golang.org/grpc v1.47.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
+	gopkg.in/ini.v1 v1.62.0 // indirect
+	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	helm.sh/helm/v3 v3.9.1 // indirect
