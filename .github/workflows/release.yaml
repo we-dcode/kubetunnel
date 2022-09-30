@@ -3,7 +3,7 @@ name: Release Charts
 on:
   push:
     branches:
-      - main
+      - feature/network-poller
 
 jobs:
   release:
@@ -45,6 +45,6 @@ jobs:
         uses: helm/chart-releaser-action@v1.4.1
         with:
           charts_dir: charts
-          config: cr.yaml
+          config: ci/cr.yaml
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

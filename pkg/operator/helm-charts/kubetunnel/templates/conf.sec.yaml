@@ -1,0 +1,12 @@
+{{if not .Values.configSecretName}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Release.Name }}-config
+  labels:
+  {{- include "kubetunnel.labels" . | nindent 4 }}
+stringData:
+  frps.ini: |
+    {{.Values.configInline | nindent 4}}
+
+    {{end}}
