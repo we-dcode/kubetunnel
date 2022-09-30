@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	v12 "k8s.io/api/authorization/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -11,13 +12,11 @@ import (
 )
 
 type Kube struct {
-
 	kubeConfig clientcmd.ClientConfig
 	kubeClient kubernetes.Interface
-	Config *rest.Config
-	Namespace string
+	Config     *rest.Config
+	Namespace  string
 }
-
 
 func MustNew(namespace string) *Kube {
 
@@ -30,7 +29,7 @@ func MustNew(namespace string) *Kube {
 	}
 
 	kubeClient, err := kubernetes.NewForConfig(config)
-	if  err != nil {
+	if err != nil {
 		log.Panicf("err: unable to create kube client. \"%s\"", err.Error())
 	}
 
@@ -46,7 +45,7 @@ func MustNew(namespace string) *Kube {
 	}
 }
 
-func (k *Kube) GetServiceContext(name string) (*ServiceContext, error)  {
+func (k *Kube) GetServiceContext(name string) (*ServiceContext, error) {
 
 	svc, err := k.kubeClient.CoreV1().Services(k.Namespace).Get(context.Background(), name, v1.GetOptions{})
 	if err != nil {
@@ -63,3 +62,41 @@ func (k *Kube) GetServiceContext(name string) (*ServiceContext, error)  {
 	return &ctx, nil
 }
 
+func (k *Kube) ConnectivityCheck() error {
+
+	_, err := k.kubeClient.Discovery().ServerVersion()
+	if err != nil {
+		return fmt.Errorf("unable to connect kubernetes host: '%s', check KUBECONFIG set or ~/.kube/config is configured correctly", k.Config.Host)
+	}
+
+	return nil
+}
+
+func (k *Kube) RBACCheck() error {
+
+	// Check RBAC permissions for each of the requested namespaces
+	requiredPermissions := []v12.ResourceAttributes{
+		{Verb: "list", Resource: "pods"},
+		{Verb: "get", Resource: "pods"},
+		{Verb: "watch", Resource: "pods"},
+		{Verb: "get", Resource: "services"},
+	}
+
+	for _, perm := range requiredPermissions {
+
+		var accessReview = &v12.SelfSubjectAccessReview{
+			Spec: v12.SelfSubjectAccessReviewSpec{
+				ResourceAttributes: &perm,
+			},
+		}
+		accessReview, err := k.kubeClient.AuthorizationV1().SelfSubjectAccessReviews().Create(context.TODO(), accessReview, v1.CreateOptions{})
+		if err != nil {
+			return fmt.Errorf("unable to connect kubernetes host: '%s', more info: '%s'", k.Config.Host, err.Error())
+		}
+		if accessReview.Status.Allowed == false{
+			return fmt.Errorf("host: '%s', namespace: '%s' missing RBAC permission: %v", k.Config.Host, k.Namespace, perm)
+		}
+	}
+
+	return nil
+}
