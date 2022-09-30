@@ -1,0 +1,10 @@
+{{- $release_name := .Release.Name }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ $release_name }}-cleanup-cm"
+data:
+  {{ (.Files.Glob "files/cleanup.sh").AsConfig }}
+
