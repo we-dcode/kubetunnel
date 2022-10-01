@@ -7,6 +7,7 @@ import (
 	"testing"
 )
 
+// TODO: execute this test using sudo -E go test -run 'KubeFwd'. the test doesn't work from IDE.
 func TestKubeFwd(t *testing.T) {
 
 	kubeClient := kube.MustNew("")

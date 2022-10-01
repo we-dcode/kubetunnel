@@ -134,8 +134,8 @@ func Execute(kubeClient *kube.Kube) error{
 		HostFile:          &fwdport.HostFileWithLock{Hosts: hostFile},
 		ClientConfig:      *kubeClient.Config,
 		RESTClient:        *restClient,
-		ClusterN:          1,
-		NamespaceN:        1,
+		ClusterN:          0,
+		NamespaceN:        0,
 		ManualStopChannel: stopListenCh,
 	}
 
