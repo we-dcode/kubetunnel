@@ -14,7 +14,7 @@ func TestInstallingKubetunnelFrp(t *testing.T) {
 
 	helmClient := helm.MustNew(client)
 
-	err := helmClient.InstallOrUpgradeFrpServer("", &models2.FrpServerValues{
+	err := helmClient.InstallOrUpgradeFrpServer("", &models2.FRPServerValues{
 		Ports:             models2.Ports{
 			Values: []string{ "8081", "8082" },
 		},

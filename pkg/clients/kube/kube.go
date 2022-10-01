@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"github.com/we-dcode/kube-tunnel/pkg/clients/kube/servicecontext"
 	v12 "k8s.io/api/authorization/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -15,7 +16,7 @@ type Kube struct {
 	kubeConfig      clientcmd.ClientConfig
 	InnerKubeClient *kubernetes.Clientset
 	Config          *rest.Config
-	Namespace  string
+	Namespace       string
 }
 
 func MustNew(namespace string) *Kube {
@@ -45,7 +46,7 @@ func MustNew(namespace string) *Kube {
 	}
 }
 
-func (k *Kube) GetServiceContext(name string) (*ServiceContext, error) {
+func (k *Kube) GetServiceContext(name string) (*servicecontext.ServiceContext, error) {
 
 	svc, err := k.InnerKubeClient.CoreV1().Services(k.Namespace).Get(context.Background(), name, v1.GetOptions{})
 	if err != nil {
@@ -54,7 +55,8 @@ func (k *Kube) GetServiceContext(name string) (*ServiceContext, error) {
 		return nil, err
 	}
 
-	ctx := ServiceContext{
+	ctx := servicecontext.ServiceContext{
+		ServiceName:   svc.Name,
 		LabelSelector: svc.Spec.Selector,
 		Ports:         svc.Spec.Ports,
 	}
@@ -93,7 +95,7 @@ func (k *Kube) RBACCheck() error {
 		if err != nil {
 			return fmt.Errorf("unable to connect kubernetes host: '%s', more info: '%s'", k.Config.Host, err.Error())
 		}
-		if accessReview.Status.Allowed == false{
+		if accessReview.Status.Allowed == false {
 			return fmt.Errorf("host: '%s', namespace: '%s' missing RBAC permission: %v", k.Config.Host, k.Namespace, perm)
 		}
 	}

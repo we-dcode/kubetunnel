@@ -93,14 +93,9 @@ func main() {
 		TimestampFormat: "15:04:05",
 	})
 
-	log.Print(` _          _           __             _`)
-	log.Print(`| | ___   _| |__   ___ / _|_      ____| |`)
-	log.Print(`| |/ / | | | '_ \ / _ \ |_\ \ /\ / / _  |`)
-	log.Print(`|   <| |_| | |_) |  __/  _|\ V  V / (_| |`)
-	log.Print(`|_|\_\\__,_|_.__/ \___|_|   \_/\_/ \__,_|`)
 	log.Print("")
-	log.Printf("Version %s", Version)
-	log.Print("https://github.com/txn2/kubefwd")
+	log.Print("https://github.com/we-dcode/kube-tunnel")
+	log.Print("https://we.dcode.tech")
 	log.Print("")
 
 	cmd := newRootCmd()

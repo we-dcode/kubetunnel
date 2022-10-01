@@ -6,11 +6,29 @@ import (
 	"github.com/txn2/kubefwd/pkg/utils"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/helm"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
+	"github.com/we-dcode/kube-tunnel/pkg/clients/kube/servicecontext"
+	"github.com/we-dcode/kube-tunnel/pkg/constants"
+	"github.com/we-dcode/kube-tunnel/pkg/frp/frpc"
+	frpmodels "github.com/we-dcode/kube-tunnel/pkg/frp/models"
+	"github.com/we-dcode/kube-tunnel/pkg/kubefwd"
 )
 
-func KubeTunnelExecute() {
+type KubeTunnel struct {
+	kubeClient *kube.Kube
+	helmClient *helm.Helm
+}
 
-	kubeClient := kube.MustNew("")
+type KubeTunnelConf struct {
+	GCVersion            string
+	FRPSVersion          string
+	ServiceName          string
+	RemoteToLocalPortMap map[string]string
+	LocalIP              string
+}
+
+func MustNew(namespace string) *KubeTunnel {
+
+	kubeClient := kube.MustNew(namespace)
 
 	err := kubeClient.ConnectivityCheck()
 	if err != nil {
@@ -29,7 +47,49 @@ func KubeTunnelExecute() {
 
 	helmClient := helm.MustNew(kubeClient)
 
-	_ = helmClient
+	return &KubeTunnel{
+		kubeClient: kubeClient,
+		helmClient: helmClient,
+	}
+}
+
+func (ct *KubeTunnel) Run(tunnelConf KubeTunnelConf) {
+
+	err := ct.helmClient.InstallOrUpgradeGC(tunnelConf.GCVersion)
+	if err != nil {
+		log.Panic(err.Error())
+	}
+
+	serviceContext, err := ct.kubeClient.GetServiceContext(tunnelConf.ServiceName)
+	if err != nil {
+		log.Panic(err.Error())
+	}
+
+	frpServerValues := servicecontext.ToFRPServerValues(serviceContext)
+
+	err = ct.helmClient.InstallOrUpgradeFrpServer(tunnelConf.FRPSVersion, frpServerValues)
+	if err != nil {
+		log.Panic(err.Error())
+	}
+
+	// TODO: The following function is blocking. Need to create a channel and re-use it for both kubefwd and frpc
+	err = kubefwd.Execute(ct.kubeClient)
+	if err != nil {
+		log.Panicf("fail executing kubefwd: %s", err.Error())
+	}
+
+	common := frpmodels.Common{
+		ServerAddress: fmt.Sprintf("%s-frps", frpServerValues.ServiceName),
+		ServerPort:    constants.FRPServerPort,
+	}
+
+	servicePortsPairs := servicecontext.ToFRPClientPairs(tunnelConf.RemoteToLocalPortMap, serviceContext)
+
+	err = frpc.Execute(common, servicePortsPairs...)
+
+	if err != nil {
+		log.Panic(err.Error())
+	}
 }
 
 func CheckRootPermissions() error {
