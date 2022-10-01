@@ -83,7 +83,7 @@ func (ct *KubeTunnel) Run(tunnelConf KubeTunnelConf) {
 		ServerPort:    constants.FRPServerPort,
 	}
 
-	servicePortsPairs := servicecontext.ToFRPClientPairs(tunnelConf.RemoteToLocalPortMap, serviceContext)
+	servicePortsPairs := servicecontext.ToFRPClientPairs(tunnelConf.LocalIP, tunnelConf.RemoteToLocalPortMap, serviceContext)
 
 	err = frpc.Execute(common, servicePortsPairs...)
 
