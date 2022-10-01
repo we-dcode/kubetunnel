@@ -11,6 +11,7 @@ import (
 	"github.com/txn2/kubefwd/pkg/fwdsvcregistry"
 	"github.com/txn2/txeh"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
+	"github.com/we-dcode/kube-tunnel/pkg/kubefwd/kubefwdutil"
 	"io/ioutil"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -75,8 +76,7 @@ func (splitter *LogOutputSplitter) Write(p []byte) (n int, err error) {
 	return os.Stdout.Write(p)
 }
 
-
-func Execute(kubeClient *kube.Kube) error{
+func Execute(kubeClient *kube.Kube) error {
 
 	log.Println("Press [Ctrl-C] to stop forwarding.")
 	log.Println("'cat /etc/hosts' to see all host entries.")
@@ -95,8 +95,9 @@ func Execute(kubeClient *kube.Kube) error{
 		os.Exit(1)
 	}
 
-	log.Printf("HostFile management: %s", msg)
+	kubefwdutil.HostsCleanup(hostFile)
 
+	log.Printf("HostFile management: %s", msg)
 
 	stopListenCh := make(chan struct{})
 
@@ -133,6 +134,7 @@ func Execute(kubeClient *kube.Kube) error{
 		ListOptions:       metav1.ListOptions{},
 		HostFile:          &fwdport.HostFileWithLock{Hosts: hostFile},
 		ClientConfig:      *kubeClient.Config,
+		Domain:            "kubetunnel",
 		RESTClient:        *restClient,
 		ClusterN:          0,
 		NamespaceN:        0,
@@ -154,7 +156,6 @@ func Execute(kubeClient *kube.Kube) error{
 
 	return nil
 }
-
 
 func watchServiceEvents(opts *services.NamespaceOpts, stopListenCh <-chan struct{}) {
 	// Apply filtering
