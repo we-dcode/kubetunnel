@@ -12,9 +12,9 @@ import (
 )
 
 type Kube struct {
-	kubeConfig clientcmd.ClientConfig
-	kubeClient kubernetes.Interface
-	Config     *rest.Config
+	kubeConfig      clientcmd.ClientConfig
+	InnerKubeClient *kubernetes.Clientset
+	Config          *rest.Config
 	Namespace  string
 }
 
@@ -47,7 +47,7 @@ func MustNew(namespace string) *Kube {
 
 func (k *Kube) GetServiceContext(name string) (*ServiceContext, error) {
 
-	svc, err := k.kubeClient.CoreV1().Services(k.Namespace).Get(context.Background(), name, v1.GetOptions{})
+	svc, err := k.InnerKubeClient.CoreV1().Services(k.Namespace).Get(context.Background(), name, v1.GetOptions{})
 	if err != nil {
 
 		err = fmt.Errorf("namespace: '%s' svc: '%s' not found at host: '%s'", k.Namespace, name, k.Config.Host)
@@ -64,7 +64,7 @@ func (k *Kube) GetServiceContext(name string) (*ServiceContext, error) {
 
 func (k *Kube) ConnectivityCheck() error {
 
-	_, err := k.kubeClient.Discovery().ServerVersion()
+	_, err := k.InnerKubeClient.Discovery().ServerVersion()
 	if err != nil {
 		return fmt.Errorf("unable to connect kubernetes host: '%s', check KUBECONFIG set or ~/.kube/config is configured correctly", k.Config.Host)
 	}
@@ -89,7 +89,7 @@ func (k *Kube) RBACCheck() error {
 				ResourceAttributes: &perm,
 			},
 		}
-		accessReview, err := k.kubeClient.AuthorizationV1().SelfSubjectAccessReviews().Create(context.TODO(), accessReview, v1.CreateOptions{})
+		accessReview, err := k.InnerKubeClient.AuthorizationV1().SelfSubjectAccessReviews().Create(context.TODO(), accessReview, v1.CreateOptions{})
 		if err != nil {
 			return fmt.Errorf("unable to connect kubernetes host: '%s', more info: '%s'", k.Config.Host, err.Error())
 		}
