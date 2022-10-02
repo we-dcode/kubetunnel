@@ -51,7 +51,7 @@ spec:
             periodSeconds: 5
           envFrom:
           - configMapRef:
-              name: kube-tunnel-{{ .Values.env_service_name }}-env
+              name: {{ include "kubetunnel.fullname" . }}-env
           volumeMounts:
             - mountPath: /scripts
               name: frp-health
