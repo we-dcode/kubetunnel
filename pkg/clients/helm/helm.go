@@ -13,19 +13,19 @@ import (
 )
 
 type Helm struct {
-	namespace string
+	namespace  string
 	helmClient helmclient.Client
 }
 
 type EMPTY struct {
-
 }
 
 func MustNew(kube *kube.Kube) *Helm {
 
 	client, err := helmclient.NewClientFromRestConf(&helmclient.RestConfClientOptions{
 		Options: &helmclient.Options{
-			Namespace:        kube.Namespace,
+			Namespace: kube.Namespace,
+			Debug:     false,
 		},
 		RestConfig: kube.Config,
 	})
@@ -35,12 +35,17 @@ func MustNew(kube *kube.Kube) *Helm {
 	}
 
 	err = client.AddOrUpdateChartRepo(repo.Entry{
-		Name: "we-decode",
+		Name: constants.DcodeSlug,
 		URL:  constants.DcodeChartRepo,
 	})
 
 	if err != nil {
 		log.Panicf("fail adding Dcode's chart repo, more info: '%s'", err.Error())
+	}
+
+	err = client.UpdateChartRepos()
+	if err != nil {
+		log.Panicf("fail updating Dcode's helm repo, more info: %s", err.Error())
 	}
 
 	return &Helm{
@@ -49,36 +54,37 @@ func MustNew(kube *kube.Kube) *Helm {
 	}
 }
 
-
 func (c *Helm) InstallOrUpgradeFrpServer(chartVersion string, values *models.FRPServerValues) error {
 
 	releaseName := values.KubeTunnelServiceName()
 
-	return install(c, constants.KubeTunnelChartName, chartVersion, releaseName, values)
-}
-
-
-func (c *Helm) InstallOrUpgradeGC(chartVersion string) error{
-
-	releaseName := "kubetunnel-gc"
-
-	return install(c, constants.KubeTunnelChartName, chartVersion, releaseName, EMPTY{})
-}
-
-func install(c *Helm, chartName string, chartVersion string, releaseName string, values interface{}) error {
 	valuesYaml, err := yaml.Marshal(values)
 	if err != nil {
 		return fmt.Errorf("err: fail to parse values.yaml more info: '%s'", err.Error())
 	}
 
+	return install(c, constants.KubeTunnelChartName, chartVersion, releaseName, valuesYaml)
+}
+
+func (c *Helm) InstallOrUpgradeGC(chartVersion string) error {
+
+	releaseName := "kubetunnel-gc"
+
+	return install(c, constants.GarbageCollectorChart, chartVersion, releaseName, []byte{})
+}
+
+func install(c *Helm, chartName string, chartVersion string, releaseName string, valuesYaml []byte) error {
+
 	chartSpec := helmclient.ChartSpec{
 		ReleaseName: releaseName,
 		Recreate:    true,
 		ChartName:   chartName,
-		//Version:     chartVersion,
+		Atomic:      true,
+		Version:     chartVersion,
 		Namespace:   c.namespace,
 		UpgradeCRDs: false,
 		Wait:        true,
+		Replace:     true,
 		ValuesYaml:  string(valuesYaml),
 	}
 

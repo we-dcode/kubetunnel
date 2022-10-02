@@ -3,17 +3,16 @@ package models
 import "fmt"
 
 type PodSelectorLabel struct {
-
-	Key string
+	Key   string
 	Value string
 }
 
-func (p PodSelectorLabel) String() string  {
+func (p PodSelectorLabel) String() string {
 
-	return fmt.Sprintf("%s:%s", p.Key, p.Value)
+	return fmt.Sprintf("%s: %s", p.Key, p.Value)
 }
 
-func (p PodSelectorLabel) MarshalJSON() ([]byte, error)  {
+func (p PodSelectorLabel) MarshalYAML() (interface{}, error) {
 
-	return []byte(fmt.Sprintf("\"%s\"", p.String())), nil
+	return p.String(), nil
 }

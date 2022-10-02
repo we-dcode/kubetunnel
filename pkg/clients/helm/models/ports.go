@@ -14,7 +14,7 @@ func (p Ports) String() string {
 	return strings.Join(p.Values, ",")
 }
 
-func (p Ports) MarshalJSON() ([]byte, error)  {
+func (p Ports) MarshalYAML() (interface{}, error) {
 
-	return []byte(fmt.Sprintf("\"%s\"", p.String())), nil
+	return fmt.Sprintf("\"%s\"", p.String()), nil
 }

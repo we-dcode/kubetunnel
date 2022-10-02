@@ -14,39 +14,45 @@ func ToFRPServerValues(ctx *ServiceContext) *models.FRPServerValues {
 
 	var ports []string
 
-	var labelSelectors []models.PodSelectorLabel
+	//var labelSelectors []models.PodSelectorLabel
 
 	linq.From(ctx.Ports).Select(func(kubePort interface{}) interface{} {
 		return strconv.Itoa(int(kubePort.(v1.ServicePort).Port))
 	}).ToSlice(&ports)
 
-	linq.From(ctx.LabelSelector).Select(func(labelSelector interface{}) interface{} {
-
-		kv := labelSelector.(linq.KeyValue)
-
-		return models.PodSelectorLabel{
-			Key:   kv.Key.(string),
-			Value: kv.Value.(string),
-		}
-
-	}).ToSlice(&labelSelectors)
+	//linq.From(ctx.LabelSelector).Select(func(labelSelector interface{}) interface{} {
+	//
+	//	kv := labelSelector.(linq.KeyValue)
+	//
+	//	return models.PodSelectorLabel{
+	//		Key:   kv.Key.(string),
+	//		Value: kv.Value.(string),
+	//	}
+	//
+	//}).ToSlice(&labelSelectors)
 
 	return &models.FRPServerValues{
 		Ports:             models.Ports{Values: ports},
 		ServiceName:       ctx.ServiceName,
-		PodSelectorLabels: labelSelectors,
+		PodSelectorLabels: ctx.LabelSelector,
 	}
 }
 
-func ToFRPClientPairs(localIP string, portMap map[string]string, ctx *ServiceContext) []frpc.ServicePair {
+func ToFRPClientPairs(localIP string, remotePortByLocal map[string]string, ctx *ServiceContext) []frpc.ServicePair {
 
 	var servicePairs []frpc.ServicePair
+
+	localPortByRemote := make(map[string]string)
+
+	for k, v := range remotePortByLocal {
+		localPortByRemote[v] = k
+	}
 
 	linq.From(ctx.Ports).Select(func(kubePort interface{}) interface{} {
 
 		port := strconv.Itoa(int(kubePort.(v1.ServicePort).Port))
 
-		localPort := portMap[port]
+		localPort := localPortByRemote[port]
 
 		if localPort == "" {
 			return nil // port not found in map

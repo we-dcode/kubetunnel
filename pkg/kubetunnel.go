@@ -21,14 +21,14 @@ type KubeTunnel struct {
 }
 
 type KubeTunnelConf struct {
-	GCVersion            string
-	FRPSVersion          string
-	ServiceName          string
-	RemoteToLocalPortMap map[string]string
-	LocalIP              string
+	GCVersion         string
+	KubeTunnelVersion string
+	ServiceName       string
+	KubeTunnelPortMap map[string]string
+	LocalIP           string
 }
 
-func MustNew(namespace string) *KubeTunnel {
+func MustNewKubeTunnel(namespace string) *KubeTunnel {
 
 	kubeClient := kube.MustNew(namespace)
 
@@ -69,7 +69,7 @@ func (ct *KubeTunnel) Run(tunnelConf KubeTunnelConf) {
 
 	frpServerValues := servicecontext.ToFRPServerValues(serviceContext)
 
-	err = ct.helmClient.InstallOrUpgradeFrpServer(tunnelConf.FRPSVersion, frpServerValues)
+	err = ct.helmClient.InstallOrUpgradeFrpServer(tunnelConf.KubeTunnelVersion, frpServerValues)
 	if err != nil {
 		log.Panic(err.Error())
 	}
@@ -84,7 +84,7 @@ func (ct *KubeTunnel) Run(tunnelConf KubeTunnelConf) {
 		kubefwdSyncChannel = kubefwd.Execute(ct.kubeClient, fsv)
 	}(frpServerValues)
 
-	err = <- kubefwdSyncChannel
+	err = <-kubefwdSyncChannel
 
 	if err != nil {
 		log.Panicf("fail executing kubefwd: %s", err.Error())
@@ -95,7 +95,7 @@ func (ct *KubeTunnel) Run(tunnelConf KubeTunnelConf) {
 		ServerPort:    constants.FRPServerPort,
 	}
 
-	servicePortsPairs := servicecontext.ToFRPClientPairs(tunnelConf.LocalIP, tunnelConf.RemoteToLocalPortMap, serviceContext)
+	servicePortsPairs := servicecontext.ToFRPClientPairs(tunnelConf.LocalIP, tunnelConf.KubeTunnelPortMap, serviceContext)
 
 	err = frpc.Execute(common, servicePortsPairs...)
 
