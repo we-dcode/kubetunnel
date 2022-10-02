@@ -1,0 +1,25 @@
+apiVersion: v1
+entries:
+  garbage-collector:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2022-09-30T03:57:42.941909+03:00"
+    description: A Helm chart for Kubernetes
+    digest: 2aa5605e26439d4b68988a1d4d144437ea9de4aff863dd34bc92e02da4b498d1
+    name: garbage-collector
+    type: application
+    urls:
+    - https://github.com/we-dcode/kube-tunnel/garbage-collector-0.1.0.tgz
+    version: 0.1.0
+  kube-tunnel:
+  - apiVersion: v2
+    appVersion: v0.37.0
+    created: "2022-09-30T03:57:42.942485+03:00"
+    description: A Helm chart for kube-tunnel server
+    digest: 2548173406ec2160ae4bdbd9611d349fdf406b83f5fdc9c59ddce673f06a08ee
+    name: kube-tunnel
+    type: application
+    urls:
+    - https://github.com/we-dcode/kube-tunnel/kube-tunnel-1.0.1.tgz
+    version: 1.0.1
+generated: "2022-09-30T03:57:42.941315+03:00"

@@ -1,0 +1,16 @@
+# This role binding allows "jane" to read pods in the "default" namespace.
+# You need to already have a Role named "pod-reader" in that namespace.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "kubetunnel.serviceAccountName" . }}-rb
+subjects:
+# You can specify more than one "subject"
+- kind: ServiceAccount
+  name: {{ include "kubetunnel.serviceAccountName" . }}
+  namespace: {{ .Values.namespace }}
+roleRef:
+  # "roleRef" specifies the binding to a Role / ClusterRole
+  kind: Role #this must be Role or ClusterRole
+  name: {{ include "kubetunnel.serviceAccountName" . }}-role
+  apiGroup: rbac.authorization.k8s.io
