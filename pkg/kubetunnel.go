@@ -5,12 +5,14 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/txn2/kubefwd/pkg/utils"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/helm"
+	"github.com/we-dcode/kube-tunnel/pkg/clients/helm/models"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube/servicecontext"
 	"github.com/we-dcode/kube-tunnel/pkg/constants"
 	"github.com/we-dcode/kube-tunnel/pkg/frp/frpc"
 	frpmodels "github.com/we-dcode/kube-tunnel/pkg/frp/models"
 	"github.com/we-dcode/kube-tunnel/pkg/kubefwd"
+	"sync"
 )
 
 type KubeTunnel struct {
@@ -72,8 +74,18 @@ func (ct *KubeTunnel) Run(tunnelConf KubeTunnelConf) {
 		log.Panic(err.Error())
 	}
 
-	// TODO: The following function is blocking. Need to create a channel and re-use it for both kubefwd and frpc
-	err = kubefwd.Execute(ct.kubeClient)
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	var kubefwdSyncChannel chan error
+
+	go func(fsv *models.FRPServerValues) {
+		defer wg.Done()
+		kubefwdSyncChannel = kubefwd.Execute(ct.kubeClient, fsv)
+	}(frpServerValues)
+
+	err = <- kubefwdSyncChannel
+
 	if err != nil {
 		log.Panicf("fail executing kubefwd: %s", err.Error())
 	}
@@ -86,6 +98,8 @@ func (ct *KubeTunnel) Run(tunnelConf KubeTunnelConf) {
 	servicePortsPairs := servicecontext.ToFRPClientPairs(tunnelConf.LocalIP, tunnelConf.RemoteToLocalPortMap, serviceContext)
 
 	err = frpc.Execute(common, servicePortsPairs...)
+
+	wg.Wait()
 
 	if err != nil {
 		log.Panic(err.Error())

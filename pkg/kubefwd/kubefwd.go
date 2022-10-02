@@ -10,8 +10,10 @@ import (
 	"github.com/txn2/kubefwd/pkg/fwdport"
 	"github.com/txn2/kubefwd/pkg/fwdsvcregistry"
 	"github.com/txn2/txeh"
+	"github.com/we-dcode/kube-tunnel/pkg/clients/helm/models"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
 	"github.com/we-dcode/kube-tunnel/pkg/kubefwd/kubefwdutil"
+	"github.com/we-dcode/kube-tunnel/pkg/tcputil"
 	"io/ioutil"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -22,6 +24,7 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -76,7 +79,10 @@ func (splitter *LogOutputSplitter) Write(p []byte) (n int, err error) {
 	return os.Stdout.Write(p)
 }
 
-func Execute(kubeClient *kube.Kube) error {
+// Execute - This code was copied from kubefwd and modified a bit to support kubetunnel requirements
+func Execute(kubeClient *kube.Kube, frpsValues *models.FRPServerValues) chan error {
+
+	channel := make(chan error)
 
 	log.Println("Press [Ctrl-C] to stop forwarding.")
 	log.Println("'cat /etc/hosts' to see all host entries.")
@@ -146,15 +152,56 @@ func Execute(kubeClient *kube.Kube) error {
 		nsWatchesDone.Done()
 	}(nameSpaceOpts)
 
-	nsWatchesDone.Wait()
-	log.Debugf("All namespace watchers are done")
+	go func() {
+		nsWatchesDone.Wait()
+		log.Debugf("namespace watchers is done")
 
-	// Shutdown all active services
-	<-fwdsvcregistry.Done()
+		// Shutdown all active services
+		<-fwdsvcregistry.Done()
 
-	log.Infof("Clean exit")
 
-	return nil
+		log.Infof("Clean exit")
+	}()
+
+	go func() {
+		WaitUntilKubeTunnelIsUp(frpsValues, fwdsvcregistry.Done())
+		channel <- nil
+	}()
+
+	return channel
+}
+
+func WaitUntilKubeTunnelIsUp(frpsValues *models.FRPServerValues, done <-chan struct{}) {
+
+	host := frpsValues.KubeTunnelServiceName()
+
+	for _, port := range frpsValues.Ports.Values {
+
+		// If Done already request (Interrupt event) then break the loop
+		if IsChannelClosed(done) {
+			break
+		}
+
+		// TODO: Do I need to wait for interrupt here or it's already handled?
+		for tcputil.IsAvailable(host, port) == false {
+
+			// If Done already request (Interrupt event) then break the loop
+			if IsChannelClosed(done) {
+				break
+			}
+
+			time.Sleep(200 * time.Millisecond)
+		}
+	}
+}
+
+func IsChannelClosed(ch <-chan struct{}) bool {
+	select {
+	case <-ch:
+		return true
+	default:
+		return false
+	}
 }
 
 func watchServiceEvents(opts *services.NamespaceOpts, stopListenCh <-chan struct{}) {

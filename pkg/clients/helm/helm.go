@@ -52,7 +52,7 @@ func MustNew(kube *kube.Kube) *Helm {
 
 func (c *Helm) InstallOrUpgradeFrpServer(chartVersion string, values *models.FRPServerValues) error {
 
-	releaseName := fmt.Sprintf("kubetunnel-%s", values.ServiceName)
+	releaseName := values.KubeTunnelServiceName()
 
 	return install(c, constants.KubeTunnelChartName, chartVersion, releaseName, values)
 }
