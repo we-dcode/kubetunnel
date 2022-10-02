@@ -21,6 +21,23 @@ entries:
   kube-tunnel:
   - apiVersion: v2
     appVersion: v0.1.0
+    created: "2022-10-02T17:07:26.595461967Z"
+    description: A Helm chart for kube-tunnel server
+    digest: be79e2065302b8c2903360da1d02baf6610b37c8691fa5aac08a21185790e479
+    maintainers:
+    - email: eliran@dcode.tech
+      name: Eliran Wolf
+    - email: maor@dcode.tech
+      name: Maor Davidov
+    - email: tshaul@gmail.com
+      name: Tamir Shaul
+    name: kube-tunnel
+    type: application
+    urls:
+    - https://github.com/we-dcode/kube-tunnel/releases/download/kube-tunnel-0.1.4/kube-tunnel-0.1.4.tgz
+    version: 0.1.4
+  - apiVersion: v2
+    appVersion: v0.1.0
     created: "2022-10-02T16:51:50.075803374Z"
     description: A Helm chart for kube-tunnel server
     digest: d0ab3fe01410184b34a56f181563a40b292e3abe46039903af0100c48bea93e1
@@ -87,4 +104,4 @@ entries:
     urls:
     - https://github.com/we-dcode/kube-tunnel/releases/download/kube-tunnel-0.1.0/kube-tunnel-0.1.0.tgz
     version: 0.1.0
-generated: "2022-10-02T16:51:50.075835974Z"
+generated: "2022-10-02T17:07:26.595486067Z"
