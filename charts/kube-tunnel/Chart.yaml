@@ -1,0 +1,13 @@
+apiVersion: v2
+name: kube-tunnel
+description: A Helm chart for kube-tunnel server
+type: application
+version: 0.1.5
+appVersion: v0.1.0
+maintainers:
+  - name: Eliran Wolf
+    email: eliran@dcode.tech
+  - name: Maor Davidov
+    email: maor@dcode.tech
+  - name: Tamir Shaul
+    email: tshaul@gmail.com
