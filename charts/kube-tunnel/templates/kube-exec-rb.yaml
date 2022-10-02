@@ -8,7 +8,7 @@ subjects:
 # You can specify more than one "subject"
 - kind: ServiceAccount
   name: {{ include "kubetunnel.serviceAccountName" . }}
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Release.Namespace }}
 roleRef:
   # "roleRef" specifies the binding to a Role / ClusterRole
   kind: Role #this must be Role or ClusterRole
