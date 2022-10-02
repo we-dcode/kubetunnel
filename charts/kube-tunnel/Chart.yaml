@@ -4,7 +4,7 @@ description: A Helm chart for kube-tunnel server
 type: application
 version: 0.1.0
 appVersion: v0.1.0
-maintainers: 
+maintainers:
   - name: Eliran Wolf
     email: eliran@dcode.tech
   - name: Maor Davidov
