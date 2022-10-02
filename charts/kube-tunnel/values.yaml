@@ -23,6 +23,7 @@ pod_selector_labels:
   app.kubernetes.io/instance: nginx
   app.kubernetes.io/name: nginx
 
+# healthcheck
 healthInline: |
   #!/bin/bash
   echo "Service is $SERVICE_NAME"
