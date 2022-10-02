@@ -42,7 +42,7 @@ jobs:
           GPG_PASSPHRASE: "${{ secrets.GPG_PASSPHRASE }}"
 
       - name: Run chart-releaser
-        uses: helm/chart-releaser-action@master
+        uses: helm/chart-releaser-action@v1.4.1
         with:
           charts_dir: charts
           config: cr.yaml
