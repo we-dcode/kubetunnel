@@ -1,0 +1,10 @@
+
+job:
+  name: cleanup-job
+  schedule: "*/1 * * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  image:
+    repository: dtzar/helm-kubectl
+    tag: latest
+    imagePullPolicy: Always
