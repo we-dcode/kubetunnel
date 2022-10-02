@@ -1,6 +1,41 @@
 apiVersion: v1
 entries:
+  garbage-collector:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2022-10-02T08:04:30.622198808Z"
+    description: A Helm chart for Kubernetes
+    digest: af451a8041c816959781f127315306a6e28ed67b331ef088c19022f68deecd6f
+    maintainers:
+    - email: eliran@dcode.tech
+      name: Eliran Wolf
+    - email: maor@dcode.tech
+      name: Maor Davidov
+    - email: tshaul@gmail.com
+      name: tamirshaul
+    name: garbage-collector
+    type: application
+    urls:
+    - https://github.com/we-dcode/kube-tunnel/releases/download/garbage-collector-0.1.1/garbage-collector-0.1.1.tgz
+    version: 0.1.1
   kube-tunnel:
+  - apiVersion: v2
+    appVersion: v0.1.0
+    created: "2022-10-02T08:04:30.888396486Z"
+    description: A Helm chart for kube-tunnel server
+    digest: 8e72f0921869fd3e0578338c623f4831d6350fd2a0b6e5375203ad995537cf94
+    maintainers:
+    - email: eliran@dcode.tech
+      name: Eliran Wolf
+    - email: maor@dcode.tech
+      name: Maor Davidov
+    - email: tshaul@gmail.com
+      name: Tamir Shaul
+    name: kube-tunnel
+    type: application
+    urls:
+    - https://github.com/we-dcode/kube-tunnel/releases/download/kube-tunnel-0.1.2/kube-tunnel-0.1.2.tgz
+    version: 0.1.2
   - apiVersion: v2
     appVersion: v0.1.0
     created: "2022-10-02T07:45:03.718105318Z"
@@ -35,4 +70,4 @@ entries:
     urls:
     - https://github.com/we-dcode/kube-tunnel/releases/download/kube-tunnel-0.1.0/kube-tunnel-0.1.0.tgz
     version: 0.1.0
-generated: "2022-10-02T07:45:03.718118218Z"
+generated: "2022-10-02T08:04:30.888413987Z"
