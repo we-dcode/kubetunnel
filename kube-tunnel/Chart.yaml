@@ -1,6 +1,0 @@
-apiVersion: v2
-appVersion: v0.37.0
-description: A Helm chart for kube-tunnel server
-name: kube-tunnel
-type: application
-version: 1.0.1
