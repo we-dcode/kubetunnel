@@ -1,0 +1,33 @@
+{{- $release_name := .Release.Name }}
+
+{{- $job := .Values.job }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $release_name }}-cleanup-role
+  labels:
+    rbac.example.com/aggregate-to-pod-list: "true"
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - list
+      - get
+      - watch
+      - delete
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kube-tunnle-cleanup-rolebinding
+subjects:
+  - kind: ServiceAccount
+    name: {{ $release_name }}-sa
+roleRef:
+  kind: Role
+  name: {{ $release_name }}-cleanup-role
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,115 @@
+replicaCount: 1
+
+namespace: frps
+
+image:
+  repository: wener/frps
+  tag:
+  pullPolicy: IfNotPresent
+serviceMonitor:
+  enable: false
+configInline: |
+  [common]
+  bind_port = 7000
+  dashboard_port = 7500
+  
+  enable_prometheus = true
+
+podSelectorLabels:
+  app.kubernetes.io/instance: nginx
+  app.kubernetes.io/name: nginx
+
+env_service_name: nginx
+env_ports: "80,8080,8088"
+
+
+healthInline: |
+  #!/bin/bash
+  echo "Service is $SERVICE_NAME"
+  for port in ${PORTS//,/ }
+  do
+    echo "curl http://localhost:$port.."
+    if curl --fail http://localhost:$port; then
+      echo "succeeded with port $port!"
+    else
+      echo "failed port $port.."
+      kubectl patch svc ${SERVICE_NAME} --type=json -p="[{'op': 'remove', 'path': '/spec/selector/kube-tunnel'}]"
+      exit 1
+    fi
+  done
+  echo "All ports are successful. Patching service to kube-tunnel.."
+  kubectl patch service ${SERVICE_NAME} -p '{"spec":{"selector":{"kube-tunnel": "true"}}}'
+
+configSecretName: ""
+envSecretName: ""
+
+ports:
+  http:
+    port: 7000
+    servicePort: 7000
+    protocol: TCP
+  https:
+    port: 443
+  udp:
+    port: 7001
+    protocol: UDP
+  kcp:
+    port: 80
+    protocol: UDP
+  dashboard:
+    port: 7500
+
+service:
+  type: ClusterIP
+
+imagePullSecrets: [ ]
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: { }
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: { }
+
+podSecurityContext: { }
+# fsGroup: 2000
+
+securityContext: { }
+  # capabilities:
+  #   drop:
+  #   - ALL
+# readOnlyRootFilesystem: true
+# runAsNonRoot: true
+# runAsUser: 1000
+
+
+resources: { }
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+# requests:
+#   cpu: 100m
+#   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: { }
+
+tolerations: [ ]
+
+affinity: { }

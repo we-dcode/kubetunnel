@@ -1,0 +1,51 @@
+{{- $chart_name := .Chart.Name }}
+{{- $chart_version := .Chart.Version | replace "+" "_" }}
+{{- $release_name := .Release.Name }}
+{{- $job := .Values.job }}
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: "{{ $release_name }}-{{ $job.name }}"
+  labels:
+    chart: "{{ $chart_name }}-{{ $chart_version }}"
+spec:
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: {{ $release_name }}
+            cron: {{ $job.name }}
+        spec:
+          serviceAccountName: {{ $release_name }}-sa
+          containers:
+          - image: "{{ $job.image.repository }}:{{ $job.image.tag }}"
+            imagePullPolicy: {{ $job.image.imagePullPolicy }}
+            name: {{ $job.name }}
+            command: 
+              - "/bin/bash"
+              - "-c"
+              - "/cleanup.sh"
+            resources:
+              limits:
+                cpu: 50m
+                memory: 256Mi
+              requests:
+                cpu: 50m
+                memory: 256Mi
+            volumeMounts:
+              - name: {{ $release_name }}-cleanup-cm
+                mountPath: /cleanup.sh
+                subPath: cleanup.sh
+          restartPolicy: OnFailure
+          volumes:
+            - name: "{{ $release_name }}-cleanup-cm"
+              configMap:
+                defaultMode: 0777
+                name: {{$release_name}}-cleanup-cm
+  schedule: {{ $job.schedule | quote }}
+  successfulJobsHistoryLimit: {{ $job.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ $job.failedJobsHistoryLimit }}
+  concurrencyPolicy: Forbid
