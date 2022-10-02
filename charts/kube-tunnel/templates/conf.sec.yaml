@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: {{ include "kubetunnel.fullname" . }}-{{ .Values.env_service_name }}-config
+  name: {{ include "kubetunnel.fullname" . }}-config
   labels:
   {{- include "kubetunnel.labels" . | nindent 4 }}
 stringData:

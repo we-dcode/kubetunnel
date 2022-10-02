@@ -1,8 +1,8 @@
 replicaCount: 1
 namespace: frps
 image:
-  repository: wener/frps
-  tag:
+  repository: snowdreamtech/frps
+  tag: latest
   pullPolicy: IfNotPresent
 
 serviceMonitor:
