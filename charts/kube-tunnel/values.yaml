@@ -4,21 +4,24 @@ image:
   repository: wener/frps
   tag:
   pullPolicy: IfNotPresent
+
 serviceMonitor:
   enable: false
+
+# frp server configuration
 configInline: |
   [common]
   bind_port = 7000
   dashboard_port = 7500
   enable_prometheus = true
 
-podSelectorLabels:
+
+# Example parameters - these should be sent from client
+env_service_name: nginx
+env_ports: "80,8080"
+pod_selector_labels:
   app.kubernetes.io/instance: nginx
   app.kubernetes.io/name: nginx
-
-env_service_name: nginx
-env_ports: "80,8080,8088"
-
 
 healthInline: |
   #!/bin/bash
