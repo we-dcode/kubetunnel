@@ -4,12 +4,15 @@ go 1.18
 
 require (
 	github.com/BurntSushi/toml v1.0.0
+	github.com/ahmetb/go-linq/v3 v3.2.0
 	github.com/fatedier/frp v0.44.0
+	github.com/gin-gonic/gin v1.8.1
 	github.com/mittwald/go-helm-client v0.11.3
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.4.0
 	github.com/stretchr/testify v1.7.2
 	github.com/txn2/kubefwd v1.22.3
+	github.com/txn2/txeh v1.3.0
 	gopkg.in/yaml.v3 v3.0.1
 	helm.sh/helm/v3 v3.9.1
 	k8s.io/api v0.25.2
@@ -34,7 +37,6 @@ require (
 	github.com/Masterminds/squirrel v1.5.3 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
-	github.com/ahmetb/go-linq/v3 v3.2.0 // indirect
 	github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -61,7 +63,6 @@ require (
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/gin-gonic/gin v1.8.1 // indirect
 	github.com/go-errors/errors v1.0.1 // indirect
 	github.com/go-gorp/gorp/v3 v3.0.2 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
@@ -138,7 +139,6 @@ require (
 	github.com/templexxx/cpufeat v0.0.0-20180724012125-cef66df7f161 // indirect
 	github.com/templexxx/xor v0.0.0-20191217153810-f85b25db303b // indirect
 	github.com/tjfoc/gmsm v1.4.1 // indirect
-	github.com/txn2/txeh v1.3.0 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect

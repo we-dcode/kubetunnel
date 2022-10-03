@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"context"
+	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
+	"github.com/we-dcode/kube-tunnel/pkg/tcputil"
 
 	"encoding/json"
 	"fmt"
@@ -10,14 +12,10 @@ import (
 	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
-	"k8s.io/client-go/tools/clientcmd"
-	"net"
 	"net/http"
 	"os"
 	"strings"
-	"time"
 )
 
 var (
@@ -43,23 +41,23 @@ func main() {
 	router := gin.Default()
 	router.GET("/health", healthHandler)
 
-	router.Run("localhost:8080")
+	router.Run("0.0.0.0:8080")
 }
 
 func healthHandler(c *gin.Context) {
 
-	clientSet := connectToKubernetes()
+	kube := connectToKubernetes() // TODO: change this one
 	portArr := strings.Split(getEnvVar("PORTS"), ",")
 	serviceName := getEnvVar("SERVICE_NAME")
 
 	log.Debugf("ports are %v", portArr)
 
 	for _, port := range portArr {
-		if !isPortAvailable(hostname, port) {
+		if tcputil.IsAvailable(hostname, port) == false {
 			log.Debugf("port %v is unavailable on host", port)
 			//  Scale our replication controller.
 			fmt.Printf("labeling service %v to connected: %v\n", serviceName, false)
-			error := patchServiceWithLabel(clientSet, serviceName, false)
+			error := patchServiceWithLabel(kube, serviceName, false)
 			if error != nil {
 				log.Panicf("error %v", error)
 			}
@@ -70,7 +68,7 @@ func healthHandler(c *gin.Context) {
 
 	//  patch
 	log.Debugf("labeling service %v to %v\n", serviceName, true)
-	error := patchServiceWithLabel(clientSet, serviceName, true)
+	error := patchServiceWithLabel(kube, serviceName, true)
 	if error != nil {
 		log.Panicf("error %v", error)
 	}
@@ -99,41 +97,27 @@ func getEnvVar(variable string) string {
 	return envVar
 }
 
-func isPortAvailable(host string, port string) bool {
+func connectToKubernetes() *kube.Kube {
 
-	timeout := time.Second
-	conn, err := net.DialTimeout("tcp", net.JoinHostPort(host, port), timeout)
+	kubeClient := kube.MustNew("kubetunnel")
+
+	err := kubeClient.ConnectivityCheck()
 	if err != nil {
-		log.Debugf("connection error: %s", err)
-		return false
+		log.Panicf(err.Error())
 	}
 
-	defer conn.Close()
-	log.Debugf("connection succeeded: %s", net.JoinHostPort(host, port))
+	err = kubeClient.RBACCheck()
+	if err != nil {
+		log.Panicf(err.Error())
+	}
 
-	return true
+	return kubeClient
 }
 
-func connectToKubernetes() *kubernetes.Clientset {
+func patchServiceWithLabel(kube *kube.Kube, serviceName string, connected bool) error {
 
-	//  Get the local kube config.
-	fmt.Printf("Connecting to Kubernetes Context %v\n", kubeContext)
-	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-		clientcmd.NewDefaultClientConfigLoadingRules(),
-		&clientcmd.ConfigOverrides{CurrentContext: kubeContext}).ClientConfig()
-	if err != nil {
-		panic(err.Error())
-	}
+	clientSet := kube.InnerKubeClient
 
-	// Creates the clientset
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err.Error())
-	}
-	return clientset
-}
-
-func patchServiceWithLabel(clientSet *kubernetes.Clientset, serviceName string, connected bool) error {
 	ctx := context.TODO()
 	if !connected {
 		log.Debugf("removing true from %v\n", serviceName)
@@ -145,7 +129,7 @@ func patchServiceWithLabel(clientSet *kubernetes.Clientset, serviceName string, 
 		payloadBytes, _ := json.Marshal(payload)
 		_, err := clientSet.
 			CoreV1().
-			Services("default").
+			Services(kube.Namespace).
 			Patch(ctx, serviceName, types.JSONPatchType, payloadBytes, metav1.PatchOptions{})
 		return err
 	} else {
@@ -158,7 +142,7 @@ func patchServiceWithLabel(clientSet *kubernetes.Clientset, serviceName string, 
 		payloadBytes, _ := json.Marshal(payload)
 		_, err := clientSet.
 			CoreV1().
-			Services("default").
+			Services(kube.Namespace).
 			Patch(ctx, serviceName, types.JSONPatchType, payloadBytes, metav1.PatchOptions{})
 		return err
 	}

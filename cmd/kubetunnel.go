@@ -16,7 +16,6 @@ limitations under the License.
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -72,17 +71,8 @@ func newRootCmd() *cobra.Command {
 	}
 
 	//cmd.AddCommand(versionCmd, services.Cmd)
-	_=versionCmd
+	_ = versionCmd
 	return cmd
-}
-
-type LogOutputSplitter struct{}
-
-func (splitter *LogOutputSplitter) Write(p []byte) (n int, err error) {
-	if bytes.Contains(p, []byte("level=error")) || bytes.Contains(p, []byte("level=warn")) {
-		return os.Stderr.Write(p)
-	}
-	return os.Stdout.Write(p)
 }
 
 func main() {
