@@ -7,7 +7,7 @@ import (
 
 func TestRunningKubeTunnelE2E(t *testing.T) {
 
-	kubeTunnel := pkg.MustNewKubeTunnel("kubetunnel")
+	kubeTunnel := pkg.MustNewKubeTunnel("", "kubetunnel")
 
 	kubeTunnel.Run(pkg.KubeTunnelConf{
 		GCVersion:         "0.1.1",

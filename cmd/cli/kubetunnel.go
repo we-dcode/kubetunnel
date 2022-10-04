@@ -45,7 +45,7 @@ func init() {
 	}
 }
 
-func newRootCmd() *cobra.Command {
+func NewRootCmd() *cobra.Command {
 
 	var kubeConfig, gcVersion, kubetunnelServerVersion, localIp, namespace, port string
 
@@ -115,7 +115,7 @@ func main() {
 	log.Print("https://we.dcode.tech")
 	log.Print("")
 
-	cmd := newRootCmd()
+	cmd := NewRootCmd()
 
 	if err := cmd.Execute(); err != nil {
 		os.Exit(1)
