@@ -1,15 +1,14 @@
-package server
+package main
 
 import (
 	"context"
+	"encoding/json"
+	"github.com/gin-gonic/gin"
+	"github.com/robfig/cron/v3"
+	log "github.com/sirupsen/logrus"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
 	"github.com/we-dcode/kube-tunnel/pkg/utils/logutil"
 	"github.com/we-dcode/kube-tunnel/pkg/utils/tcputil"
-
-	"encoding/json"
-	"fmt"
-	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -20,6 +19,8 @@ import (
 
 var (
 	kubeContext = ""
+
+	isConnected = false
 
 	hostname = "127.0.0.1"
 )
@@ -38,15 +39,34 @@ func main() {
 	log.Print("https://we.dcode.tech")
 	log.Print("")
 
+	startJob()
+	startGin()
+
+}
+
+func startJob() {
+	//s := gocron.NewScheduler(time.UTC)
+
+	//s.Every(5).Seconds().Do(func() { portChecker() })
+	job := cron.New()
+	job.AddFunc("@every 5s", func() {
+		portChecker()
+	})
+	job.Start()
+}
+
+func startGin() {
 	router := gin.Default()
 	router.GET("/health", healthHandler)
 
 	router.Run("0.0.0.0:8080")
 }
 
-func healthHandler(c *gin.Context) {
+func portChecker() {
 
+	log.Debugf("Starting portChecker.. ")
 	kube := connectToKubernetes() // TODO: change this one
+
 	portArr := strings.Split(getEnvVar("PORTS"), ",")
 	serviceName := getEnvVar("SERVICE_NAME")
 
@@ -55,13 +75,14 @@ func healthHandler(c *gin.Context) {
 	for _, port := range portArr {
 		if tcputil.IsAvailable(hostname, port) == false {
 			log.Debugf("port %v is unavailable on host", port)
-			//  Scale our replication controller.
-			fmt.Printf("labeling service %v to connected: %v\n", serviceName, false)
+
+			// TODO Make the operator do the patching of the service
 			error := patchServiceWithLabel(kube, serviceName, false)
 			if error != nil {
-				log.Panicf("error %v", error)
+				log.Debugf("error %v", error)
+			} else {
+				isConnected = false
 			}
-			c.IndentedJSON(http.StatusOK, "Fail")
 			return
 		}
 	}
@@ -70,9 +91,15 @@ func healthHandler(c *gin.Context) {
 	log.Debugf("labeling service %v to %v\n", serviceName, true)
 	error := patchServiceWithLabel(kube, serviceName, true)
 	if error != nil {
-		log.Panicf("error %v", error)
+		log.Debugf("error %v", error)
+	} else {
+		isConnected = true
 	}
-	c.IndentedJSON(http.StatusOK, portArr)
+
+}
+
+func healthHandler(c *gin.Context) {
+	c.IndentedJSON(http.StatusOK, isConnected)
 }
 
 //  patchStringValue specifies a patch operation for a string.
@@ -80,13 +107,6 @@ type patchStringValue struct {
 	Op    string `json:"op"`
 	Path  string `json:"path"`
 	Value string `json:"value"`
-}
-
-//  patchStringValue specifies a patch operation for a uint32.
-type patchUInt32Value struct {
-	Op    string `json:"op"`
-	Path  string `json:"path"`
-	Value uint32 `json:"value"`
 }
 
 func getEnvVar(variable string) string {
@@ -117,9 +137,10 @@ func connectToKubernetes() *kube.Kube {
 func patchServiceWithLabel(kube *kube.Kube, serviceName string, connected bool) error {
 
 	clientSet := kube.InnerKubeClient
-
+	log.Debugf(kube.Namespace)
 	ctx := context.TODO()
 	if !connected {
+		
 		log.Debugf("removing true from %v\n", serviceName)
 		payload := []patchStringValue{{
 			Op:    "remove",
