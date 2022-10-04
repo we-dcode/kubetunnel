@@ -13,7 +13,7 @@ import (
 	"github.com/we-dcode/kube-tunnel/pkg/clients/helm/models"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
 	"github.com/we-dcode/kube-tunnel/pkg/kubefwd/kubefwdutil"
-	"github.com/we-dcode/kube-tunnel/pkg/tcputil"
+	"github.com/we-dcode/kube-tunnel/pkg/utils/tcputil"
 	"io/ioutil"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -158,7 +158,6 @@ func Execute(kubeClient *kube.Kube, frpsValues *models.FRPServerValues) chan err
 
 		// Shutdown all active services
 		<-fwdsvcregistry.Done()
-
 
 		log.Infof("Clean exit")
 	}()

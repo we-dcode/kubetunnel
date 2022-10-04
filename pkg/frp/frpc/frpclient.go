@@ -5,7 +5,7 @@ import (
 	"github.com/fatedier/frp/client"
 	"github.com/we-dcode/kube-tunnel/pkg/frp/frputil"
 	"github.com/we-dcode/kube-tunnel/pkg/frp/models"
-	"github.com/we-dcode/kube-tunnel/pkg/tomlutil"
+	"github.com/we-dcode/kube-tunnel/pkg/utils/tomlutil"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,7 +13,7 @@ import (
 )
 
 type ServicePair struct {
-	Name string
+	Name    string
 	Service models.Service
 }
 
@@ -21,7 +21,7 @@ type ServicePair struct {
 func Execute(common models.Common, servicePair ...ServicePair) (err error) {
 
 	frpConfig := models.FrpClientConfig{
-		"common":  common,
+		"common": common,
 	}
 
 	for _, element := range servicePair {
@@ -63,4 +63,3 @@ func handleSignal(svr *client.Service, doneCh chan struct{}) {
 	svr.GracefulClose(500 * time.Millisecond)
 	close(doneCh)
 }
-

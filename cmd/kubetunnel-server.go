@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
-	"github.com/we-dcode/kube-tunnel/pkg/tcputil"
+	"github.com/we-dcode/kube-tunnel/pkg/utils/logutil"
+	"github.com/we-dcode/kube-tunnel/pkg/utils/tcputil"
 
 	"encoding/json"
 	"fmt"
@@ -32,7 +32,7 @@ func main() {
 		ForceColors:     true,
 		TimestampFormat: "15:04:05",
 	})
-	log.SetOutput(&LogOutputSplitter{})
+	log.SetOutput(&logutil.LogOutputSplitter{})
 	log.Print("")
 	log.Print("https://github.com/we-dcode/kube-tunnel")
 	log.Print("https://we.dcode.tech")
@@ -99,7 +99,7 @@ func getEnvVar(variable string) string {
 
 func connectToKubernetes() *kube.Kube {
 
-	kubeClient := kube.MustNew("kubetunnel")
+	kubeClient := kube.MustNew("", "kubetunnel")
 
 	err := kubeClient.ConnectivityCheck()
 	if err != nil {
@@ -146,13 +146,4 @@ func patchServiceWithLabel(kube *kube.Kube, serviceName string, connected bool) 
 			Patch(ctx, serviceName, types.JSONPatchType, payloadBytes, metav1.PatchOptions{})
 		return err
 	}
-}
-
-type LogOutputSplitter struct{}
-
-func (splitter *LogOutputSplitter) Write(p []byte) (n int, err error) {
-	if bytes.Contains(p, []byte("level=error")) || bytes.Contains(p, []byte("level=warn")) {
-		return os.Stderr.Write(p)
-	}
-	return os.Stdout.Write(p)
 }

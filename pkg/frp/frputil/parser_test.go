@@ -4,14 +4,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/we-dcode/kube-tunnel/pkg/frp/frputil"
 	"github.com/we-dcode/kube-tunnel/pkg/frp/models"
-	"github.com/we-dcode/kube-tunnel/pkg/tomlutil"
+	"github.com/we-dcode/kube-tunnel/pkg/utils/tomlutil"
 	"testing"
 )
 
 func TestGetServiceWithSinglePortOnDefaultNamespace(t *testing.T) {
 
 	frpConfig := models.FrpClientConfig{
-		"common":  models.Common{
+		"common": models.Common{
 			ServerAddress: "localhost",
 			ServerPort:    "7001",
 		},
@@ -28,7 +28,6 @@ func TestGetServiceWithSinglePortOnDefaultNamespace(t *testing.T) {
 			LocalPort:  "15672",
 		},
 	}
-
 
 	tomlString, err := tomlutil.Marshal(frpConfig)
 

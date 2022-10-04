@@ -19,11 +19,25 @@ type Kube struct {
 	Namespace       string
 }
 
-func MustNew(namespace string) *Kube {
+func MustNew(kubeConf string, namespace string) *Kube {
 
-	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
-	configOverrides := &clientcmd.ConfigOverrides{}
-	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
+	var kubeConfig clientcmd.ClientConfig
+
+	if kubeConf == "" {
+		loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+		configOverrides := &clientcmd.ConfigOverrides{}
+		kubeConfig = clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
+	} else {
+
+		conf, err := clientcmd.LoadFromFile(kubeConf)
+
+		if err != nil {
+			log.Panicf("err: unable to load kubeconfig from path: '%s'. \"%s\"", kubeConf, err.Error())
+		}
+
+		kubeConfig = clientcmd.NewDefaultClientConfig(*conf, &clientcmd.ConfigOverrides{})
+	}
+
 	config, err := kubeConfig.ClientConfig()
 	if err != nil {
 		log.Panicf("err: unable to read kubeconfig. \"%s\"", err.Error())

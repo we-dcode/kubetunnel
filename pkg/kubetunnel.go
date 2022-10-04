@@ -28,9 +28,9 @@ type KubeTunnelConf struct {
 	LocalIP           string
 }
 
-func MustNewKubeTunnel(namespace string) *KubeTunnel {
+func MustNewKubeTunnel(kubeConfig string, namespace string) *KubeTunnel {
 
-	kubeClient := kube.MustNew(namespace)
+	kubeClient := kube.MustNew(kubeConfig, namespace)
 
 	err := kubeClient.ConnectivityCheck()
 	if err != nil {

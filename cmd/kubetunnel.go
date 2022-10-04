@@ -17,8 +17,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/we-dcode/kube-tunnel/pkg"
+	"github.com/we-dcode/kube-tunnel/pkg/constants"
+	"github.com/we-dcode/kube-tunnel/pkg/utils/logutil"
 	"io/ioutil"
 	"os"
+	"regexp"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -35,44 +39,67 @@ func init() {
 		os.Exit(0)
 	}
 
-	log.SetOutput(&LogOutputSplitter{})
+	log.SetOutput(&logutil.LogOutputSplitter{})
 	if len(args) > 0 && args[0] == "completion" {
 		log.SetOutput(ioutil.Discard)
 	}
 }
 
 func newRootCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "kubefwd",
-		Short: "Expose Kubernetes services for local development.",
-		Example: " kubefwd services --help\n" +
-			"  kubefwd svc -n the-project\n" +
-			"  kubefwd svc -n the-project -l env=dev,component=api\n" +
-			"  kubefwd svc -n the-project -f metadata.name=service-name\n" +
-			"  kubefwd svc -n default -l \"app in (ws, api)\"\n" +
-			"  kubefwd svc -n default -n the-project\n" +
-			"  kubefwd svc -n the-project -m 80:8080 -m 443:1443\n" +
-			"  kubefwd svc -n the-project -z path/to/conf.yml\n" +
-			"  kubefwd svc -n the-project -r svc.ns:127.3.3.1\n" +
-			"  kubefwd svc --all-namespaces",
 
-		Long: globalUsage,
-	}
+	var kubeConfig, gcVersion, kubetunnelServerVersion, localIp, namespace, port string
 
-	versionCmd := &cobra.Command{
-		Use:   "version",
-		Short: "Print the version of Kubefwd",
-		Example: " kubefwd version\n" +
-			" kubefwd version quiet\n",
-		Long: ``,
+	rootCommand := &cobra.Command{
+		Use:   constants.KubetunnelSlug,
+		Short: "Duplex interaction with K8s cluster.",
+		Long:  "\"Deploy\" local service to running Kubernetes cluster and allow duplex interaction.",
+		Example: fmt.Sprintf("  sudo -E %s svc --help\n", constants.KubetunnelSlug) +
+			fmt.Sprintf("  sudo -E %s svc -n namespace -p 8080:80 svc_name", constants.KubetunnelSlug),
+
+		Args: cobra.ExactArgs(1),
+
+		// TODO: Consider change to RunE and modify all panic to return error
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("Kubefwd version: %s\nhttps://github.com/txn2/kubefwd\n", Version)
+
+			portForwardRegex := regexp.MustCompile(`^(?P<local>[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]):(?P<remote>[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$`)
+
+			if portForwardRegex.MatchString(port) == false {
+
+				log.Panicf("port: '%s' is invalid. expected format example: '8080:80'", port)
+			}
+
+			matches := portForwardRegex.FindStringSubmatch(port)
+			localIndex := portForwardRegex.SubexpIndex("local")
+			remoteIndex := portForwardRegex.SubexpIndex("remote")
+
+			kubeTunnel := pkg.MustNewKubeTunnel(kubeConfig, namespace)
+
+			kubeTunnel.Run(pkg.KubeTunnelConf{
+				GCVersion:         gcVersion,
+				KubeTunnelVersion: kubetunnelServerVersion,
+				ServiceName:       args[0],
+				KubeTunnelPortMap: map[string]string{
+					matches[localIndex]: matches[remoteIndex],
+				},
+				LocalIP: localIp,
+			})
+
 		},
 	}
 
-	//cmd.AddCommand(versionCmd, services.Cmd)
-	_ = versionCmd
-	return cmd
+	// TODO: make a usage of kubeconfig explicit flag
+	rootCommand.PersistentFlags().StringVarP(&kubeConfig, "kubeconfig", "c", "", "absolute path to a kubectl config file")
+	rootCommand.PersistentFlags().StringVar(&gcVersion, "gc-version", Version, fmt.Sprintf("%s's Garbage Collector chart version", constants.KubetunnelSlug))
+	rootCommand.PersistentFlags().StringVar(&kubetunnelServerVersion, "server-version", Version, fmt.Sprintf("%s's Server chart version", constants.KubetunnelSlug))
+	rootCommand.PersistentFlags().StringVar(&localIp, "local-ip", "127.0.0.1", "local service binding ip, usually localhost")
+
+	rootCommand.PersistentFlags().StringVarP(&namespace, "namespace", "n", "default", "Specify a namespace")
+
+	// TODO: Change port to []string and allow multi -p ...
+	rootCommand.Flags().StringVarP(&port, "port", "p", "", "Specify a namespace")
+	rootCommand.MarkFlagRequired("port")
+
+	return rootCommand
 }
 
 func main() {

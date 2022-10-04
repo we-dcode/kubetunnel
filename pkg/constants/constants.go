@@ -6,4 +6,5 @@ const (
 	KubeTunnelChartName   = DcodeSlug + "/kube-tunnel"
 	GarbageCollectorChart = DcodeSlug + "/garbage-collector"
 	FRPServerPort         = "7000"
+	KubetunnelSlug        = "kubetunnel"
 )
