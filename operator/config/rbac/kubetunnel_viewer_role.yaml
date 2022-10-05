@@ -1,0 +1,20 @@
+# permissions for end users to view kubetunnels.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kubetunnel-viewer-role
+rules:
+- apiGroups:
+  - charts.dcode.tech
+  resources:
+  - kubetunnels
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - charts.dcode.tech
+  resources:
+  - kubetunnels/status
+  verbs:
+  - get
