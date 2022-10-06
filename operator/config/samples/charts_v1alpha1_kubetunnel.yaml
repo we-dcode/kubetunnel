@@ -3,5 +3,5 @@ kind: Kubetunnel
 metadata:
   name: kubetunnel-sample
 spec:
-  env_ports: 80,8080
+  env_ports: "8080,8080"
   env_service_name: nginx

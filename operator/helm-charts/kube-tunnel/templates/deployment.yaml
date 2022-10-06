@@ -35,26 +35,11 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: kube-exec
-          image: bitnami/kubectl
-          command:
-          - bash
-          - -c
-          args: 
-          - sleep infinity
-          readinessProbe:
-            exec:
-              command:
-              - /bin/bash
-              - /scripts/health.sh
-            initialDelaySeconds: 0
-            periodSeconds: 5
+        - name: kube-tunnel-server
+          image: eliranw/kube-tunnel:0.1
           envFrom:
           - configMapRef:
               name: {{ include "kubetunnel.fullname" . }}-env
-          volumeMounts:
-            - mountPath: /scripts
-              name: frp-health
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}

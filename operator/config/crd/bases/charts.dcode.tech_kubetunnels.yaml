@@ -12,7 +12,14 @@ spec:
     singular: kubetunnel
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.isConnected
+      name: Is Connected
+      type: boolean
+    - jsonPath: .spec.client
+      name: Client
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Kubetunnel is the Schema for the kubetunnels API
@@ -39,11 +46,13 @@ spec:
             x-kubernetes-preserve-unknown-fields: true
           isConnected:
             description: Connected defines if connected to client
-            type: object
+            type: boolean
+            default: false
             x-kubernetes-preserve-unknown-fields: true
           client:
             description: Client defines name of client
-            type: object
+            type: string
+            default: none
             x-kubernetes-preserve-unknown-fields: true
         type: object
     served: true
