@@ -3,6 +3,23 @@ entries:
   garbage-collector:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2022-10-06T06:08:29.087862312Z"
+    description: A Helm chart for Kubernetes
+    digest: e4e4e488bf0bad5f7f04a7288c6585f03acfad74494d9ecd51f01e442eeb6e02
+    maintainers:
+    - email: eliran@dcode.tech
+      name: Eliran Wolf
+    - email: maor@dcode.tech
+      name: Maor Davidov
+    - email: tshaul@gmail.com
+      name: tamirshaul
+    name: garbage-collector
+    type: application
+    urls:
+    - https://github.com/we-dcode/kube-tunnel/releases/download/garbage-collector-0.1.2/garbage-collector-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2022-10-02T08:04:30.622198808Z"
     description: A Helm chart for Kubernetes
     digest: af451a8041c816959781f127315306a6e28ed67b331ef088c19022f68deecd6f
@@ -19,6 +36,23 @@ entries:
     - https://github.com/we-dcode/kube-tunnel/releases/download/garbage-collector-0.1.1/garbage-collector-0.1.1.tgz
     version: 0.1.1
   kube-tunnel:
+  - apiVersion: v2
+    appVersion: v0.1.0
+    created: "2022-10-06T06:08:29.348328231Z"
+    description: A Helm chart for kube-tunnel server
+    digest: 377f3d2e8a6db589ea5dc423a4392d03ccc80da90c164b8cccb03e6b0a512cfe
+    maintainers:
+    - email: eliran@dcode.tech
+      name: Eliran Wolf
+    - email: maor@dcode.tech
+      name: Maor Davidov
+    - email: tshaul@gmail.com
+      name: Tamir Shaul
+    name: kube-tunnel
+    type: application
+    urls:
+    - https://github.com/we-dcode/kube-tunnel/releases/download/kube-tunnel-0.1.6/kube-tunnel-0.1.6.tgz
+    version: 0.1.6
   - apiVersion: v2
     appVersion: v0.1.0
     created: "2022-10-02T17:13:34.830628106Z"
@@ -121,4 +155,4 @@ entries:
     urls:
     - https://github.com/we-dcode/kube-tunnel/releases/download/kube-tunnel-0.1.0/kube-tunnel-0.1.0.tgz
     version: 0.1.0
-generated: "2022-10-02T17:13:34.830648307Z"
+generated: "2022-10-06T06:08:29.348353731Z"
