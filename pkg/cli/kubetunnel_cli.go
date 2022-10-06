@@ -19,7 +19,7 @@ func NewRootCmd() *cobra.Command {
 		Short: "Duplex interaction with K8s cluster.",
 		Long:  "\"Deploy\" local service to running Kubernetes cluster and allow duplex interaction.",
 		Example: fmt.Sprintf("  sudo -E %s svc --help\n", constants.KubetunnelSlug) +
-			fmt.Sprintf("  sudo -E %s svc -n namespace -p 8080:80 svc_name", constants.KubetunnelSlug),
+			fmt.Sprintf("  sudo -E %s svc -n namespace -p '8080:80' svc_name", constants.KubetunnelSlug),
 
 		Args: cobra.ExactArgs(1),
 

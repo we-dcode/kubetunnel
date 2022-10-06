@@ -13,7 +13,6 @@ import (
 )
 
 type Kube struct {
-	kubeConfig      clientcmd.ClientConfig
 	InnerKubeClient *kubernetes.Clientset
 	Config          *rest.Config
 	Namespace       string
@@ -21,39 +20,21 @@ type Kube struct {
 
 func MustNew(kubeConf string, namespace string) *Kube {
 
-	var kubeConfig clientcmd.ClientConfig
+	kubeClient, config, err := createInClusterKubeClient()
 
-	if kubeConf == "" {
-		loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
-		configOverrides := &clientcmd.ConfigOverrides{}
-		kubeConfig = clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
-	} else {
+	if err != nil {
 
-		conf, err := clientcmd.LoadFromFile(kubeConf)
+		var kubeConfig clientcmd.ClientConfig
+		kubeClient, kubeConfig = mustCreateOutOfClusterKubeClient(kubeConf)
 
-		if err != nil {
-			log.Panicf("err: unable to load kubeconfig from path: '%s'. \"%s\"", kubeConf, err.Error())
+		config, _ = kubeConfig.ClientConfig()
+
+		if len(namespace) == 0 {
+			namespace, _, _ = kubeConfig.Namespace()
 		}
-
-		kubeConfig = clientcmd.NewDefaultClientConfig(*conf, &clientcmd.ConfigOverrides{})
-	}
-
-	config, err := kubeConfig.ClientConfig()
-	if err != nil {
-		log.Panicf("err: unable to read kubeconfig. \"%s\"", err.Error())
-	}
-
-	kubeClient, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		log.Panicf("err: unable to create kube client. \"%s\"", err.Error())
-	}
-
-	if len(namespace) == 0 {
-		namespace, _, _ = kubeConfig.Namespace()
 	}
 
 	return &Kube{
-		kubeConfig,
 		kubeClient,
 		config,
 		namespace,
@@ -115,4 +96,52 @@ func (k *Kube) RBACCheck() error {
 	}
 
 	return nil
+}
+
+func createInClusterKubeClient() (*kubernetes.Clientset, *rest.Config, error) {
+	inClusterConf, err := rest.InClusterConfig()
+
+	if err != nil {
+
+		return nil, nil, err
+	}
+
+	client, err := kubernetes.NewForConfig(inClusterConf)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return client, inClusterConf, nil
+}
+
+func mustCreateOutOfClusterKubeClient(kubeConf string) (*kubernetes.Clientset, clientcmd.ClientConfig) {
+
+	var kubeConfig clientcmd.ClientConfig
+
+	if kubeConf == "" {
+		loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+		configOverrides := &clientcmd.ConfigOverrides{}
+		kubeConfig = clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
+	} else {
+
+		conf, err := clientcmd.LoadFromFile(kubeConf)
+
+		if err != nil {
+			log.Panicf("err: unable to load kubeconfig from path: '%s'. \"%s\"", kubeConf, err.Error())
+		}
+
+		kubeConfig = clientcmd.NewDefaultClientConfig(*conf, &clientcmd.ConfigOverrides{})
+	}
+
+	config, err := kubeConfig.ClientConfig()
+	if err != nil {
+		log.Panicf("err: unable to read kubeconfig. \"%s\"", err.Error())
+	}
+
+	kubeClient, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Panicf("err: unable to create kube client. \"%s\"", err.Error())
+	}
+
+	return kubeClient, kubeConfig
 }

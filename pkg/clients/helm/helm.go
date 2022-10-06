@@ -10,6 +10,7 @@ import (
 	"github.com/we-dcode/kube-tunnel/pkg/constants"
 	"gopkg.in/yaml.v3"
 	"helm.sh/helm/v3/pkg/repo"
+	"time"
 )
 
 type Helm struct {
@@ -25,7 +26,10 @@ func MustNew(kube *kube.Kube) *Helm {
 	client, err := helmclient.NewClientFromRestConf(&helmclient.RestConfClientOptions{
 		Options: &helmclient.Options{
 			Namespace: kube.Namespace,
-			Debug:     false,
+			Debug:     true,
+			DebugLog: func(format string, v ...interface{}) {
+				log.Infof(format, v)
+			},
 		},
 		RestConfig: kube.Config,
 	})
@@ -86,6 +90,7 @@ func install(c *Helm, chartName string, chartVersion string, releaseName string,
 		Wait:        true,
 		Replace:     true,
 		ValuesYaml:  string(valuesYaml),
+		Timeout:     time.Second * 10,
 	}
 
 	if _, err := c.helmClient.InstallOrUpgradeChart(context.Background(), &chartSpec, nil); err != nil {

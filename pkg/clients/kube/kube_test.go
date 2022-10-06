@@ -8,7 +8,7 @@ import (
 
 func TestGetServiceWithSinglePortOnDefaultNamespace(t *testing.T) {
 
-	client := kube.MustNew("")
+	client := kube.MustNew("", "")
 
 	context, err := client.GetServiceContext("kubetunnel-svc")
 
@@ -19,7 +19,7 @@ func TestGetServiceWithSinglePortOnDefaultNamespace(t *testing.T) {
 
 func TestGetServiceWithMultiplePortsOnDefaultNamespace(t *testing.T) {
 
-	client := kube.MustNew("")
+	client := kube.MustNew("", "")
 
 	context, err := client.GetServiceContext("kubetunnel-multi-svc")
 
@@ -28,10 +28,9 @@ func TestGetServiceWithMultiplePortsOnDefaultNamespace(t *testing.T) {
 	assert.Len(t, context.Ports, 2)
 }
 
-
 func TestGetServiceFromExplicitNamespaceWithMultipleLables(t *testing.T) {
 
-	client := kube.MustNew("kubetunnel-explicit")
+	client := kube.MustNew("", "kubetunnel-explicit")
 
 	context, err := client.GetServiceContext("kubetunnel-svc")
 
