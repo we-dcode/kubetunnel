@@ -5,7 +5,7 @@ metadata:
   name: kubetunnel-editor-role
 rules:
 - apiGroups:
-  - charts.dcode.tech
+  - application.dcode.tech
   resources:
   - kubetunnels
   verbs:
@@ -17,7 +17,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - charts.dcode.tech
+  - application.dcode.tech
   resources:
   - kubetunnels/status
   verbs:

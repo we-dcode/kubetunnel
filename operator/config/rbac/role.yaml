@@ -29,10 +29,10 @@ rules:
   - create
 
 ##
-## Rules for charts.dcode.tech/v1alpha1, Kind: Kubetunnel
+## Rules for application.dcode.tech/v1, Kind: Kubetunnel
 ##
 - apiGroups:
-  - charts.dcode.tech
+  - application.dcode.tech
   resources:
   - kubetunnels
   - kubetunnels/status
@@ -48,13 +48,6 @@ rules:
 - verbs:
   - "*"
   apiGroups:
-  - "rbac.authorization.k8s.io"
-  resources:
-  - "rolebindings"
-  - "roles"
-- verbs:
-  - "*"
-  apiGroups:
   - "apps"
   resources:
   - "deployments"
@@ -63,8 +56,6 @@ rules:
   apiGroups:
   - ""
   resources:
-  - "configmaps"
-  - "secrets"
   - "serviceaccounts"
   - "services"
 

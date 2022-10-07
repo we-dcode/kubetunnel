@@ -1,6 +1,6 @@
 # Use the 'create api' subcommand to add watches to this file.
-- group: charts.dcode.tech
-  version: v1alpha1
+- group: application.dcode.tech
+  version: v1
   kind: Kubetunnel
-  chart: helm-charts/kube-tunnel
+  chart: helm-charts/kubetunnel
 #+kubebuilder:scaffold:watch

@@ -5,7 +5,7 @@ metadata:
   name: kubetunnel-viewer-role
 rules:
 - apiGroups:
-  - charts.dcode.tech
+  - application.dcode.tech
   resources:
   - kubetunnels
   verbs:
@@ -13,7 +13,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - charts.dcode.tech
+  - application.dcode.tech
   resources:
   - kubetunnels/status
   verbs:

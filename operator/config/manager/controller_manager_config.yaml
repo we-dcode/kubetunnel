@@ -4,10 +4,11 @@ health:
   healthProbeBindAddress: :8081
 metrics:
   bindAddress: 127.0.0.1:8080
-
+webhook:
+  port: 9443
 leaderElection:
   leaderElect: true
-  resourceName: 811c9dc5.dcode.tech
+  resourceName: 5dbd2493.dcode.tech
 # leaderElectionReleaseOnCancel defines if the leader should step down volume
 # when the Manager ends. This requires the binary to immediately end when the
 # Manager is stopped, otherwise, this setting is unsafe. Setting this significantly
