@@ -65,7 +65,7 @@ func startGin() {
 func portChecker() {
 
 	log.Debugf("Starting portChecker.. ")
-	kube := connectToKubernetes() // TODO: change this one
+	//kube := connectToKubernetes() // TODO: change this one
 
 	portArr := strings.Split(getEnvVar("PORTS"), ",")
 	serviceName := getEnvVar("SERVICE_NAME")
