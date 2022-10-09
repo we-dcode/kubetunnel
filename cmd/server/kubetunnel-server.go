@@ -155,11 +155,12 @@ func patchServiceWithLabel(kube *kube.Kube, serviceName string, connected bool) 
 	if !connected {
 
 		log.Debugf("removing true from %v\n", serviceName)
-		payload := []patchStringValue{{
-			Op:    "remove",
-			Path:  fmt.Sprintf("/spec/selector/%s", constants.KubetunnelSlug),
-			Value: "true",
-		}}
+		var payload []patchStringValue
+		//payload := []patchStringValue{{ TODO: This label should be added to service label and not pod label selector
+		//	Op:    "remove",
+		//	Path:  "/spec/selector/kube-tunnel",
+		//	Value: "true",
+		//}}
 
 		for key, valueWithSlug := range svcContext.LabelSelector {
 
@@ -190,11 +191,13 @@ func patchServiceWithLabel(kube *kube.Kube, serviceName string, connected bool) 
 		return err
 	} else {
 		log.Debugf("adding true to %v\n", serviceName)
-		payload := []patchStringValue{{
-			Op:    "add",
-			Path:  fmt.Sprintf("/spec/selector/%s", constants.KubetunnelSlug),
-			Value: "true",
-		}}
+		//payload := []patchStringValue{{
+		//	Op:    "add",
+		//	Path:  "/spec/selector/kube-tunnel",
+		//	Value: "true",
+		//}}
+
+		var payload []patchStringValue
 
 		for key, valueWithoutSlug := range svcContext.LabelSelector {
 

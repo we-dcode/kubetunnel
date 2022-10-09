@@ -19,10 +19,10 @@ func TestKubeFwd(t *testing.T) {
 	// kubectl create svc clusterip nginx --tcp 80:80
 	// kubectl create svc clusterip kubetunnel-nginx --tcp 80:80 // TODO: change label selector to app: nginx
 	frpsValues := &models.FRPServerValues{
-		Ports:             models.Ports{
-			Values: []string{ "80" },
+		Ports: models.Ports{
+			Values: []string{"80"},
 		},
-		ServiceName:       "nginx",
+		ServiceName: "nginx",
 	}
 
 	errChan := kubefwd.Execute(kubeClient, frpsValues)
