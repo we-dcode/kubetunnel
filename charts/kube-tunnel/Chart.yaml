@@ -2,7 +2,7 @@ apiVersion: v2
 name: kube-tunnel
 description: A Helm chart for kube-tunnel server
 type: application
-version: 0.2.3
+version: 0.2.4
 appVersion: v0.1.0
 maintainers:
   - name: Eliran Wolf
