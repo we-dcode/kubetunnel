@@ -102,12 +102,13 @@ func createInClusterKubeClient() (*kubernetes.Clientset, *rest.Config, error) {
 	inClusterConf, err := rest.InClusterConfig()
 
 	if err != nil {
-
+		log.Warnf("fail to get InClusterConfig, err: %s", err.Error())
 		return nil, nil, err
 	}
 
 	client, err := kubernetes.NewForConfig(inClusterConf)
 	if err != nil {
+		log.Warnf("fail to create new config from in cluster, err: %s", err.Error())
 		return nil, nil, err
 	}
 

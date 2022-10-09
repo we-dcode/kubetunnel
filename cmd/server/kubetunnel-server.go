@@ -140,7 +140,7 @@ func patchServiceWithLabel(kube *kube.Kube, serviceName string, connected bool) 
 	log.Debugf(kube.Namespace)
 	ctx := context.TODO()
 	if !connected {
-		
+
 		log.Debugf("removing true from %v\n", serviceName)
 		payload := []patchStringValue{{
 			Op:    "remove",
