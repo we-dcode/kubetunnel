@@ -57,10 +57,10 @@ func MustNewKubeTunnel(kubeConfig string, namespace string) *KubeTunnel {
 
 func (ct *KubeTunnel) Run(tunnelConf KubeTunnelConf) {
 
-	err := ct.helmClient.InstallOrUpgradeGC(tunnelConf.GCVersion)
-	if err != nil {
-		log.Panic(err.Error())
-	}
+	//err := ct.helmClient.InstallOrUpgradeGC(tunnelConf.GCVersion)
+	//if err != nil {
+	//	log.Panic(err.Error())
+	//}
 
 	serviceContext, err := ct.kubeClient.GetServiceContext(tunnelConf.ServiceName)
 	if err != nil {

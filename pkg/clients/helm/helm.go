@@ -81,14 +81,14 @@ func install(c *Helm, chartName string, chartVersion string, releaseName string,
 
 	chartSpec := helmclient.ChartSpec{
 		ReleaseName: releaseName,
-		Recreate:    true,
+		Recreate:    false,
 		ChartName:   chartName,
 		Atomic:      true,
 		Version:     chartVersion,
 		Namespace:   c.namespace,
 		UpgradeCRDs: false,
 		Wait:        true,
-		Replace:     true,
+		Replace:     false,
 		ValuesYaml:  string(valuesYaml),
 		Timeout:     time.Second * 10,
 	}

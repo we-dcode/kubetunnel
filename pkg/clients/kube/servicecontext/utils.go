@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/ahmetb/go-linq/v3"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/helm/models"
+	"github.com/we-dcode/kube-tunnel/pkg/constants"
 	"github.com/we-dcode/kube-tunnel/pkg/frp/frpc"
 	frpmodels "github.com/we-dcode/kube-tunnel/pkg/frp/models"
 	v1 "k8s.io/api/core/v1"
@@ -14,27 +15,21 @@ func ToFRPServerValues(ctx *ServiceContext) *models.FRPServerValues {
 
 	var ports []string
 
-	//var labelSelectors []models.PodSelectorLabel
-
 	linq.From(ctx.Ports).Select(func(kubePort interface{}) interface{} {
 		return strconv.Itoa(int(kubePort.(v1.ServicePort).Port))
 	}).ToSlice(&ports)
 
-	//linq.From(ctx.LabelSelector).Select(func(labelSelector interface{}) interface{} {
-	//
-	//	kv := labelSelector.(linq.KeyValue)
-	//
-	//	return models.PodSelectorLabel{
-	//		Key:   kv.Key.(string),
-	//		Value: kv.Value.(string),
-	//	}
-	//
-	//}).ToSlice(&labelSelectors)
+	labelSelectors := make(map[string]string)
+
+	for key, value := range ctx.LabelSelector {
+
+		labelSelectors[key] = fmt.Sprintf("%s-%s", constants.KubetunnelSlug, value)
+	}
 
 	return &models.FRPServerValues{
 		Ports:             models.Ports{Values: ports},
 		ServiceName:       ctx.ServiceName,
-		PodSelectorLabels: ctx.LabelSelector,
+		PodSelectorLabels: labelSelectors,
 	}
 }
 

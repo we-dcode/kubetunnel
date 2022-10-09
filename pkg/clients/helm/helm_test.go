@@ -10,27 +10,26 @@ import (
 
 func TestInstallingKubetunnelFrp(t *testing.T) {
 
-	client := kube.MustNew("")
+	client := kube.MustNew("", "")
 
 	helmClient := helm.MustNew(client)
 
 	err := helmClient.InstallOrUpgradeFrpServer("", &models2.FRPServerValues{
-		Ports:             models2.Ports{
-			Values: []string{ "8081", "8082" },
+		Ports: models2.Ports{
+			Values: []string{"8081", "8082"},
 		},
-		ServiceName:       "kubetunnel-svc",
-		PodSelectorLabels: []models2.PodSelectorLabel{
-			{Key: "app", Value: "kubetunnel-svc"},
+		ServiceName: "kubetunnel-svc",
+		PodSelectorLabels: map[string]string{
+			"app": "kubetunnel-svc",
 		},
 	})
 
 	assert.NoError(t, err)
 }
 
-
 func TestInstallingKubetunnelGC(t *testing.T) {
 
-	client := kube.MustNew("")
+	client := kube.MustNew("", "")
 
 	helmClient := helm.MustNew(client)
 

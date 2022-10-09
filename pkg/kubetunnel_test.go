@@ -11,7 +11,7 @@ func TestRunningKubeTunnelE2E(t *testing.T) {
 
 	kubeTunnel.Run(pkg.KubeTunnelConf{
 		GCVersion:         "0.1.1",
-		KubeTunnelVersion: "0.2.0",
+		KubeTunnelVersion: "0.2.1",
 		ServiceName:       "nginx",
 		LocalIP:           "localhost",
 		KubeTunnelPortMap: map[string]string{

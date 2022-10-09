@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/robfig/cron/v3"
 	log "github.com/sirupsen/logrus"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
+	"github.com/we-dcode/kube-tunnel/pkg/constants"
 	"github.com/we-dcode/kube-tunnel/pkg/utils/logutil"
 	"github.com/we-dcode/kube-tunnel/pkg/utils/tcputil"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -136,9 +138,17 @@ func connectToKubernetes() *kube.Kube {
 
 func patchServiceWithLabel(kube *kube.Kube, serviceName string, connected bool) error {
 
+	svcContext, err := kube.GetServiceContext(serviceName)
+	if err != nil {
+		log.Errorf("fail to get service: '%s' context, error: %s", serviceName, err.Error())
+	}
+
 	clientSet := kube.InnerKubeClient
 	log.Debugf(kube.Namespace)
 	ctx := context.TODO()
+
+	slugPrefix := fmt.Sprintf("%s-", constants.KubetunnelSlug)
+
 	if !connected {
 
 		log.Debugf("removing true from %v\n", serviceName)
@@ -147,6 +157,19 @@ func patchServiceWithLabel(kube *kube.Kube, serviceName string, connected bool) 
 			Path:  "/spec/selector/kubetunnel",
 			Value: "true",
 		}}
+
+		for key, valueWithSlug := range svcContext.LabelSelector {
+
+			valueWithoutSlug := strings.Replace(valueWithSlug, slugPrefix, "", 1)
+
+			payload = append(payload, patchStringValue{
+
+				Op:    "replace",
+				Path:  fmt.Sprintf("/spec/selector/%s", key),
+				Value: valueWithoutSlug,
+			})
+		}
+
 		payloadBytes, _ := json.Marshal(payload)
 		_, err := clientSet.
 			CoreV1().
@@ -160,6 +183,19 @@ func patchServiceWithLabel(kube *kube.Kube, serviceName string, connected bool) 
 			Path:  "/spec/selector/kubetunnel",
 			Value: "true",
 		}}
+
+		for key, valueWithoutSlug := range svcContext.LabelSelector {
+
+			valueWithSlug := fmt.Sprintf("%s-%s", slugPrefix, valueWithoutSlug)
+
+			payload = append(payload, patchStringValue{
+
+				Op:    "replace",
+				Path:  fmt.Sprintf("/spec/selector/%s", key),
+				Value: valueWithSlug,
+			})
+		}
+
 		payloadBytes, _ := json.Marshal(payload)
 		_, err := clientSet.
 			CoreV1().
