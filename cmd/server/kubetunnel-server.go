@@ -197,7 +197,7 @@ func patchServiceWithLabel(kube *kube.Kube, serviceName string, connected bool) 
 				continue
 			}
 
-			valueWithSlug := fmt.Sprintf("%s-%s", slugPrefix, valueWithoutSlug)
+			valueWithSlug := fmt.Sprintf("%s%s", slugPrefix, valueWithoutSlug)
 
 			payload = append(payload, patchStringValue{
 
