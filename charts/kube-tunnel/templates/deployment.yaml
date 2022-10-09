@@ -36,7 +36,7 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: kube-tunnel-server
-          image: dcodetech/kubetunnel:1.0.3
+          image: dcodetech/kubetunnel:1.0.4
           envFrom:
           - configMapRef:
               name: {{ .Release.Name }}-env

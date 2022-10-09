@@ -149,16 +149,23 @@ func patchServiceWithLabel(kube *kube.Kube, serviceName string, connected bool) 
 
 	slugPrefix := fmt.Sprintf("%s-", constants.KubetunnelSlug)
 
+	// TODO: Check if service needs to be updated...
+	//serviceUpdateRequires := false
+
 	if !connected {
 
 		log.Debugf("removing true from %v\n", serviceName)
 		payload := []patchStringValue{{
 			Op:    "remove",
-			Path:  "/spec/selector/kubetunnel",
+			Path:  fmt.Sprintf("/spec/selector/%s", constants.KubetunnelSlug),
 			Value: "true",
 		}}
 
 		for key, valueWithSlug := range svcContext.LabelSelector {
+
+			if strings.EqualFold(key, constants.KubetunnelSlug) {
+				continue
+			}
 
 			slugAlreadyRemoved := strings.Contains(valueWithSlug, constants.KubetunnelSlug) == false
 			if slugAlreadyRemoved {
@@ -185,11 +192,15 @@ func patchServiceWithLabel(kube *kube.Kube, serviceName string, connected bool) 
 		log.Debugf("adding true to %v\n", serviceName)
 		payload := []patchStringValue{{
 			Op:    "add",
-			Path:  "/spec/selector/kubetunnel",
+			Path:  fmt.Sprintf("/spec/selector/%s", constants.KubetunnelSlug),
 			Value: "true",
 		}}
 
 		for key, valueWithoutSlug := range svcContext.LabelSelector {
+
+			if strings.EqualFold(key, constants.KubetunnelSlug) {
+				continue
+			}
 
 			alreadyContainSlug := strings.Contains(valueWithoutSlug, constants.KubetunnelSlug)
 
