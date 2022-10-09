@@ -112,7 +112,7 @@ type patchStringValue struct {
 func getEnvVar(variable string) string {
 	envVar, ok := os.LookupEnv(variable)
 	if !ok {
-		log.Panicf("%v is not a present env variable", variable)
+		log.Errorf("%v is not a present env variable", variable)
 	}
 	return envVar
 }
@@ -123,12 +123,12 @@ func connectToKubernetes() *kube.Kube {
 
 	err := kubeClient.ConnectivityCheck()
 	if err != nil {
-		log.Panicf(err.Error())
+		log.Errorf(err.Error())
 	}
 
 	err = kubeClient.RBACCheck()
 	if err != nil {
-		log.Panicf(err.Error())
+		log.Errorf(err.Error())
 	}
 
 	return kubeClient
