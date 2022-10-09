@@ -3,7 +3,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ include "kubetunnel.serviceAccountName" . }}-rb
+  name: {{ .Release.Name }}-rb
 subjects:
 # You can specify more than one "subject"
 - kind: ServiceAccount
