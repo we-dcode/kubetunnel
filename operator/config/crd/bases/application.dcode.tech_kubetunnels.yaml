@@ -54,6 +54,7 @@ spec:
             type: string
             default: none
             x-kubernetes-preserve-unknown-fields: true
+
         type: object
     served: true
     storage: true

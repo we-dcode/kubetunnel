@@ -26,11 +26,10 @@ import (
 	"github.com/operator-framework/helm-operator-plugins/pkg/annotation"
 	"github.com/operator-framework/helm-operator-plugins/pkg/reconciler"
 	"github.com/operator-framework/helm-operator-plugins/pkg/watches"
-	_ "k8s.io/client-go/plugin/pkg/client/auth"
-
 	ctrlruntime "k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
@@ -50,12 +49,6 @@ func init() {
 	//+kubebuilder:scaffold:scheme
 }
 
-type GroupVersionKind struct {
-	Group   string
-	Version string
-	Kind    string
-}
-
 func main() {
 	var (
 		metricsAddr          string
@@ -64,6 +57,8 @@ func main() {
 		probeAddr            string
 		enableLeaderElection bool
 	)
+
+	// #### Manager pod configuration
 
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
@@ -122,6 +117,8 @@ func main() {
 			maxConcurrentReconciles = *w.MaxConcurrentReconciles
 		}
 
+		// Setup manager with Helm API
+
 		r, err := reconciler.New(
 			reconciler.WithChart(*w.Chart),
 			reconciler.WithGroupVersionKind(w.GroupVersionKind),
@@ -137,7 +134,16 @@ func main() {
 			setupLog.Error(err, "unable to create helm reconciler", "controller", "Helm")
 			os.Exit(1)
 		}
+
+		// The SetupWithManager method is called when the operator starts.
+		// It serves to tell the operator framework what types our PodReconciler
+		// needs to watch. To use the same Pod type used by Kubernetes internally,
+		// we need to import some of its code. All of the Kubernetes source code is
+		// open source, so you can import any part you like in your own Go code. You can
+		// find a complete list of available packages in the Kubernetes source code or here
+		// on pkg.go.dev. To use pods, we need the k8s.io/api/core/v1 package.
 		if err := r.SetupWithManager(mgr); err != nil {
+
 			setupLog.Error(err, "unable to create controller", "controller", "Helm")
 			os.Exit(1)
 		}
