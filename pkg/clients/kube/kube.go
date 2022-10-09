@@ -112,6 +112,8 @@ func createInClusterKubeClient() (*kubernetes.Clientset, *rest.Config, error) {
 		return nil, nil, err
 	}
 
+	log.Info("connected using in cluster config")
+
 	return client, inClusterConf, nil
 }
 
