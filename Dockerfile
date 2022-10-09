@@ -6,9 +6,9 @@ COPY ./ /go/src/github.com/dcode/kubetunnel/
 WORKDIR /go/src/github.com/dcode/kubetunnel
 
 # install all dependencies
-RUN go get ./...
-
-RUN go build -o /kubetunnel cmd/server/kubetunnel-server.go
+#RUN go get ./...
+RUN go mod tidy
+RUN GOOS=linux GOARCH=amd64 go build -o /kubetunnel cmd/server/kubetunnel-server.go
 
 ## Deploy
 FROM gcr.io/distroless/base-debian10

@@ -8,7 +8,7 @@ type FrpClientConfig map[string]interface{}
 //}
 
 type Common struct {
-	ServerAddress string `toml:"server_address,omitempty"`
+	ServerAddress string `toml:"server_addr,omitempty"`
 	ServerPort    string `toml:"server_port,omitempty"`
 }
 

@@ -5,13 +5,13 @@ import (
 	"testing"
 )
 
-func TestRunningKubeTunnelE2E(t *testing.T) {
+func TestRunningKubeTunnelE2E2(t *testing.T) {
 
 	kubeTunnel := pkg.MustNewKubeTunnel("/Users/maordavidov/dcode/gitlab-cicd-kubeconfig.yaml", "kubetunnel")
 
 	kubeTunnel.Run(pkg.KubeTunnelConf{
 		GCVersion:         "0.1.1",
-		KubeTunnelVersion: "0.2.1",
+		KubeTunnelVersion: "0.2.3",
 		ServiceName:       "nginx",
 		LocalIP:           "localhost",
 		KubeTunnelPortMap: map[string]string{

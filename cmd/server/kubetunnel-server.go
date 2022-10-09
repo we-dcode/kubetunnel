@@ -160,6 +160,11 @@ func patchServiceWithLabel(kube *kube.Kube, serviceName string, connected bool) 
 
 		for key, valueWithSlug := range svcContext.LabelSelector {
 
+			slugAlreadyRemoved := strings.Contains(valueWithSlug, constants.KubetunnelSlug) == false
+			if slugAlreadyRemoved {
+				continue
+			}
+
 			valueWithoutSlug := strings.Replace(valueWithSlug, slugPrefix, "", 1)
 
 			payload = append(payload, patchStringValue{
@@ -185,6 +190,12 @@ func patchServiceWithLabel(kube *kube.Kube, serviceName string, connected bool) 
 		}}
 
 		for key, valueWithoutSlug := range svcContext.LabelSelector {
+
+			alreadyContainSlug := strings.Contains(valueWithoutSlug, constants.KubetunnelSlug)
+
+			if alreadyContainSlug {
+				continue
+			}
 
 			valueWithSlug := fmt.Sprintf("%s-%s", slugPrefix, valueWithoutSlug)
 

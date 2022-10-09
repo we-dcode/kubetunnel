@@ -91,7 +91,7 @@ func (ct *KubeTunnel) Run(tunnelConf KubeTunnelConf) {
 	}
 
 	common := frpmodels.Common{
-		ServerAddress: fmt.Sprintf("%s-frps", frpServerValues.ServiceName),
+		ServerAddress: fmt.Sprintf("%s-%s", constants.KubetunnelSlug, frpServerValues.ServiceName),
 		ServerPort:    constants.FRPServerPort,
 	}
 
