@@ -3,6 +3,7 @@ package kube
 import (
 	"context"
 	"fmt"
+	portforward "github.com/maordavidov/go-k8s-portforward"
 	log "github.com/sirupsen/logrus"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube/servicecontext"
 	v12 "k8s.io/api/authorization/v1"
@@ -57,6 +58,36 @@ func (k *Kube) GetServiceContext(name string) (*servicecontext.ServiceContext, e
 	}
 
 	return &ctx, nil
+}
+
+func (k *Kube) PortForward(serviceName string, port int) (listeningPort int, err error) {
+
+	service, err := k.GetServiceContext(serviceName)
+
+	if err != nil {
+		return -1, err
+	}
+
+	pf := &portforward.PortForward{
+		Namespace: k.Namespace,
+		Labels: v1.LabelSelector{
+			MatchLabels: service.LabelSelector,
+		},
+		DestinationPort: port,
+		Config:          k.Config,
+		Clientset:       k.InnerKubeClient,
+	}
+
+	listeningPort, err = pf.Start(context.Background())
+	if err != nil {
+		return -1, fmt.Errorf("error starting port forward: %s", err)
+	}
+
+	log.Printf("Started tunnel on %d\n", pf.ListenPort)
+
+	// TODO: how to stop? pf.Stop()..? do we need to listen on stop??
+
+	return listeningPort, nil
 }
 
 func (k *Kube) ConnectivityCheck() error {
