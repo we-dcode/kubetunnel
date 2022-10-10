@@ -4,8 +4,10 @@ DIR=$(ROOT_DIR)/build
 SLUG=kubetunnel
 $(shell mkdir -p ${DIR})
 
+APP_VERSION="0.2.7" # TODO: get this one from env var
+
 # Go build flags
-LDFLAGS=-ldflags '-X main.build=${BUILD} -buildid='
+LDFLAGS=-ldflags "-X 'main.Version=${APP_VERSION}'"
 
 default-cli:
 	go build ${LDFLAGS} -o ${DIR} ${ROOT_DIR}/cmd/cli
