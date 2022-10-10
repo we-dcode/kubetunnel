@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/we-dcode/kube-tunnel/cmd/cli/cmds"
 	"github.com/we-dcode/kube-tunnel/pkg"
 	"github.com/we-dcode/kube-tunnel/pkg/constants"
 	"github.com/we-dcode/kube-tunnel/pkg/utils/logutil"
@@ -38,10 +39,10 @@ func main() {
 		TimestampFormat: "15:04:05",
 	})
 
-	log.Print("")
-	log.Print("https://github.com/we-dcode/kube-tunnel")
-	log.Print("https://dcode.tech")
-	log.Print("")
+	//log.Print("")
+	//log.Print("https://github.com/we-dcode/kube-tunnel")
+	//log.Print("https://dcode.tech")
+	//log.Print("")
 
 	cmd := NewRootCmd()
 
@@ -51,18 +52,53 @@ func main() {
 }
 
 func NewRootCmd() *cobra.Command {
-
-	var kubeConfig, gcVersion, kubetunnelServerVersion, localIp, namespace, port string
-
-	rootCommand := &cobra.Command{
+	rootCmd := &cobra.Command{
 		Use:   constants.KubetunnelSlug,
 		Short: "Duplex interaction with K8s cluster.",
 		Long:  "\"Deploy\" local service to running Kubernetes cluster and allow duplex interaction.",
 		Example: fmt.Sprintf("  sudo -E %s svc --help\n", constants.KubetunnelSlug) +
 			fmt.Sprintf("  sudo -E %s svc -n namespace -p '8080:80' svc_name", constants.KubetunnelSlug),
+	}
 
-		Args: cobra.ExactArgs(1),
+	rootCmd.AddCommand(NewSvcCmd())
+	rootCmd.AddCommand(NewVersionCmd())
+	rootCmd.AddCommand(cmds.NewCmdCompletion(os.Stdout, ""))
+	//rootCmd.SetHelpCommand()
 
+	return rootCmd
+}
+
+func NewVersionCmd() *cobra.Command {
+	versionCmd := &cobra.Command{
+		Use:   "version",
+		Short: fmt.Sprintf("Print the version of %s", constants.KubetunnelSlug),
+		Long:  ``,
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Printf("%s version: %s\nhttps://github.com/we-dcode/kube-tunnel\n", constants.KubetunnelSlug, Version)
+		},
+	}
+
+	return versionCmd
+}
+
+func NewSvcCmd() *cobra.Command {
+
+	var kubeConfig, gcVersion, kubetunnelServerVersion, localIp, namespace, port string
+
+	svcCmd := &cobra.Command{
+		Use:   "svc",
+		Short: "Duplex interaction with K8s cluster.",
+		Args:  cobra.ExactArgs(1),
+		//ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		//	if len(args) != 0 {
+		//		return nil, cobra.ShellCompDirectiveNoFileComp
+		//	}
+		//
+		//	// TODO: list services from kube cluster
+		//
+		//
+		//	return getReleasesFromCluster(toComplete), cobra.ShellCompDirectiveNoFileComp
+		//},
 		// TODO: Consider change to RunE and modify all panic to return error
 		Run: func(cmd *cobra.Command, args []string) {
 
@@ -93,16 +129,16 @@ func NewRootCmd() *cobra.Command {
 	}
 
 	// TODO: make a usage of kubeconfig explicit flag
-	rootCommand.PersistentFlags().StringVarP(&kubeConfig, "kubeconfig", "c", "", "absolute path to a kubectl config file")
-	rootCommand.PersistentFlags().StringVar(&gcVersion, "gc-version", Version, fmt.Sprintf("%s's Garbage Collector chart version", constants.KubetunnelSlug))
-	rootCommand.PersistentFlags().StringVar(&kubetunnelServerVersion, "server-version", Version, fmt.Sprintf("%s's Server chart version", constants.KubetunnelSlug))
-	rootCommand.PersistentFlags().StringVar(&localIp, "local-ip", "127.0.0.1", "local service binding ip, usually localhost")
+	svcCmd.Flags().StringVarP(&kubeConfig, "kubeconfig", "c", "", "absolute path to a kubectl config file")
+	svcCmd.Flags().StringVar(&gcVersion, "gc-version", Version, fmt.Sprintf("%s's Garbage Collector chart version", constants.KubetunnelSlug))
+	svcCmd.Flags().StringVar(&kubetunnelServerVersion, "server-version", Version, fmt.Sprintf("%s's Server chart version", constants.KubetunnelSlug))
+	svcCmd.Flags().StringVar(&localIp, "local-ip", "127.0.0.1", "local service binding ip, usually localhost")
 
-	rootCommand.PersistentFlags().StringVarP(&namespace, "namespace", "n", "default", "Specify a namespace")
+	svcCmd.Flags().StringVarP(&namespace, "namespace", "n", "default", "Specify a namespace")
 
 	// TODO: Change port to []string and allow multi -p ...
-	rootCommand.Flags().StringVarP(&port, "port", "p", "", "Specify a namespace")
-	rootCommand.MarkFlagRequired("port")
+	svcCmd.Flags().StringVarP(&port, "port", "p", "", "Specify a namespace")
+	svcCmd.MarkFlagRequired("port")
 
-	return rootCommand
+	return svcCmd
 }

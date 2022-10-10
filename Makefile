@@ -10,7 +10,7 @@ APP_VERSION="0.2.7" # TODO: get this one from env var
 LDFLAGS=-ldflags "-X 'main.Version=${APP_VERSION}'"
 
 default-cli:
-	go build ${LDFLAGS} -o ${DIR} ${ROOT_DIR}/cmd/cli
+	go build ${LDFLAGS} -o ${DIR}/${SLUG} ${ROOT_DIR}/cmd/cli
 
 # Compile CLI - Windows x64
 windows-cli:
