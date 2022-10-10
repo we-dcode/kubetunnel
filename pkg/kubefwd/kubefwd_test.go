@@ -12,7 +12,7 @@ import (
 // TODO: execute this test using sudo -E go test -run 'KubeFwd'. OR configure Goland to run as sudo
 func TestKubeFwd(t *testing.T) {
 
-	kubeClient := kube.MustNew("kubetunnel")
+	kubeClient := kube.MustNew("", "kubetunnel")
 
 	// kubectl run nginx -l app=nginx --image=nginx:1.14.2 --port 80
 	// kubectl run client-mock -l app=client-mock --image=nginx:1.14.2

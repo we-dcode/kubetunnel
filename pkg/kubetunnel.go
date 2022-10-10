@@ -13,7 +13,6 @@ import (
 	"github.com/we-dcode/kube-tunnel/pkg/frp/frpc"
 	frpmodels "github.com/we-dcode/kube-tunnel/pkg/frp/models"
 	"github.com/we-dcode/kube-tunnel/pkg/kubefwd"
-	"time"
 )
 
 type KubeTunnel struct {
@@ -77,7 +76,7 @@ func (ct *KubeTunnel) Run(tunnelConf KubeTunnelConf) {
 
 	kubefwdSyncChannel := make(chan error)
 	var hostFile *fwdport.HostFileWithLock
-
+	_ = hostFile // TODO: delete this line
 	go func(fsv *models.FRPServerValues) {
 		hostFile = kubefwd.Execute(ct.kubeClient, fsv, kubefwdSyncChannel)
 	}(frpServerValues)
@@ -97,14 +96,18 @@ func (ct *KubeTunnel) Run(tunnelConf KubeTunnelConf) {
 
 	servicePortsPairs := servicecontext.ToFRPClientPairs(tunnelConf.LocalIP, tunnelConf.KubeTunnelPortMap, serviceContext)
 
-	for { // TODO: how to finish the execution here using signal? need to replace with frp manager?
-		err = frpc.Execute(common, hostFile, servicePortsPairs...)
+	frpcManager := frpc.NewManager(common, servicePortsPairs)
 
-		if err != nil {
-			log.Panic(err.Error())
-		}
-		time.Sleep(100 * time.Millisecond)
-	}
+	frpcManager.RunFRPc()
+	//
+	//for { // TODO: how to finish the execution here using signal? need to replace with frp manager?
+	//	err = frpc.Execute(common, hostFile, servicePortsPairs...)
+	//
+	//	if err != nil {
+	//		log.Panic(err.Error())
+	//	}
+	//	time.Sleep(100 * time.Millisecond)
+	//}
 
 }
 
