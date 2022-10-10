@@ -11,6 +11,7 @@ rules:
   - ""
   resources:
   - namespaces
+  - roles
   verbs:
   - get
 # We need to manage Helm release secrets
@@ -18,6 +19,7 @@ rules:
   - ""
   resources:
   - secrets
+  - roles
   verbs:
   - "*"
 # We need to create events on CRs about things happening during reconciliation
@@ -52,6 +54,7 @@ rules:
   resources:
   - "serviceaccounts"
   - "services"
+  - "roles"
 - verbs:
   - "*"
   apiGroups:
