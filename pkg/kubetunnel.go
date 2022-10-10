@@ -3,6 +3,7 @@ package pkg
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"github.com/txn2/kubefwd/pkg/fwdport"
 	"github.com/txn2/kubefwd/pkg/utils"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/helm"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/helm/models"
@@ -12,7 +13,7 @@ import (
 	"github.com/we-dcode/kube-tunnel/pkg/frp/frpc"
 	frpmodels "github.com/we-dcode/kube-tunnel/pkg/frp/models"
 	"github.com/we-dcode/kube-tunnel/pkg/kubefwd"
-	"sync"
+	"time"
 )
 
 type KubeTunnel struct {
@@ -74,17 +75,16 @@ func (ct *KubeTunnel) Run(tunnelConf KubeTunnelConf) {
 		log.Panic(err.Error())
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(1)
-
-	var kubefwdSyncChannel chan error
+	kubefwdSyncChannel := make(chan error)
+	var hostFile *fwdport.HostFileWithLock
 
 	go func(fsv *models.FRPServerValues) {
-		defer wg.Done()
-		kubefwdSyncChannel = kubefwd.Execute(ct.kubeClient, fsv)
+		hostFile = kubefwd.Execute(ct.kubeClient, fsv, kubefwdSyncChannel)
 	}(frpServerValues)
 
 	err = <-kubefwdSyncChannel
+
+	log.Info("executing frpc")
 
 	if err != nil {
 		log.Panicf("fail executing kubefwd: %s", err.Error())
@@ -97,13 +97,15 @@ func (ct *KubeTunnel) Run(tunnelConf KubeTunnelConf) {
 
 	servicePortsPairs := servicecontext.ToFRPClientPairs(tunnelConf.LocalIP, tunnelConf.KubeTunnelPortMap, serviceContext)
 
-	err = frpc.Execute(common, servicePortsPairs...)
+	for { // TODO: how to finish the execution here using signal? need to replace with frp manager?
+		err = frpc.Execute(common, hostFile, servicePortsPairs...)
 
-	wg.Wait()
-
-	if err != nil {
-		log.Panic(err.Error())
+		if err != nil {
+			log.Panic(err.Error())
+		}
+		time.Sleep(100 * time.Millisecond)
 	}
+
 }
 
 func CheckRootPermissions() error {

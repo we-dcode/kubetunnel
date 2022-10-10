@@ -3,6 +3,7 @@ package frpc
 import (
 	"fmt"
 	"github.com/fatedier/frp/client"
+	"github.com/txn2/kubefwd/pkg/fwdport"
 	"github.com/we-dcode/kube-tunnel/pkg/frp/frputil"
 	"github.com/we-dcode/kube-tunnel/pkg/frp/models"
 	"github.com/we-dcode/kube-tunnel/pkg/utils/tomlutil"
@@ -18,7 +19,7 @@ type ServicePair struct {
 }
 
 // Execute - This code was copied from frpc and modified a bit to support kubetunnel requirements
-func Execute(common models.Common, servicePair ...ServicePair) (err error) {
+func Execute(common models.Common, hostFile *fwdport.HostFileWithLock, servicePair ...ServicePair) (err error) {
 
 	frpConfig := models.FrpClientConfig{
 		"common": common,

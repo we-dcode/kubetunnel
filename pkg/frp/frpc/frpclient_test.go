@@ -15,18 +15,18 @@ func TestInstallingKubetunnelGC(t *testing.T) {
 	}
 
 	svc := []frpc.ServicePair{
-			{
-				Name: "google",
-				Service: models.Service{
-					Type:       "tcp",
-					RemotePort: "80",
-					LocalIP:    "google.com",
-					LocalPort:  "80",
-				},
+		{
+			Name: "google",
+			Service: models.Service{
+				Type:       "tcp",
+				RemotePort: "80",
+				LocalIP:    "google.com",
+				LocalPort:  "80",
 			},
-			{
-				Name: "microsoft",
-				Service: models.Service{
+		},
+		{
+			Name: "microsoft",
+			Service: models.Service{
 				Type:       "tcp",
 				RemotePort: "8081",
 				LocalIP:    "microsoft.com",
@@ -35,7 +35,7 @@ func TestInstallingKubetunnelGC(t *testing.T) {
 		},
 	}
 
-	err := frpc.Execute(common, svc...)
+	err := frpc.Execute(common, nil, svc...)
 
 	assert.NoError(t, err)
 }

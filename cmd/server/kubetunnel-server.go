@@ -51,7 +51,7 @@ func startJob() {
 
 	//s.Every(5).Seconds().Do(func() { portChecker() })
 	job := cron.New()
-	job.AddFunc("@every 5s", func() {
+	job.AddFunc("@every 30s", func() {
 		portChecker()
 	})
 	job.Start()
@@ -128,11 +128,6 @@ func connectToKubernetes() *kube.Kube {
 		log.Errorf(err.Error())
 	}
 
-	//err = kubeClient.RBACCheck()
-	//if err != nil {
-	//	log.Errorf(err.Error())
-	//}
-
 	return kubeClient
 }
 
@@ -150,17 +145,11 @@ func patchServiceWithLabel(kube *kube.Kube, serviceName string, connected bool) 
 	slugPrefix := fmt.Sprintf("%s-", constants.KubetunnelSlug)
 
 	// TODO: Check if service needs to be updated...
-	//serviceUpdateRequires := false
 
 	if !connected {
 
 		log.Debugf("removing true from %v\n", serviceName)
 		var payload []patchStringValue
-		//payload := []patchStringValue{{ TODO: This label should be added to service label and not pod label selector
-		//	Op:    "remove",
-		//	Path:  "/spec/selector/kube-tunnel",
-		//	Value: "true",
-		//}}
 
 		for key, valueWithSlug := range svcContext.LabelSelector {
 
@@ -183,19 +172,17 @@ func patchServiceWithLabel(kube *kube.Kube, serviceName string, connected bool) 
 			})
 		}
 
-		payloadBytes, _ := json.Marshal(payload)
-		_, err := clientSet.
-			CoreV1().
-			Services(kube.Namespace).
-			Patch(ctx, serviceName, types.JSONPatchType, payloadBytes, metav1.PatchOptions{})
-		return err
+		if len(payload) > 0 {
+			payloadBytes, _ := json.Marshal(payload)
+			_, err := clientSet.
+				CoreV1().
+				Services(kube.Namespace).
+				Patch(ctx, serviceName, types.JSONPatchType, payloadBytes, metav1.PatchOptions{})
+			return err
+		}
+
 	} else {
 		log.Debugf("adding true to %v\n", serviceName)
-		//payload := []patchStringValue{{
-		//	Op:    "add",
-		//	Path:  "/spec/selector/kube-tunnel",
-		//	Value: "true",
-		//}}
 
 		var payload []patchStringValue
 
@@ -220,12 +207,15 @@ func patchServiceWithLabel(kube *kube.Kube, serviceName string, connected bool) 
 				Value: valueWithSlug,
 			})
 		}
-
-		payloadBytes, _ := json.Marshal(payload)
-		_, err := clientSet.
-			CoreV1().
-			Services(kube.Namespace).
-			Patch(ctx, serviceName, types.JSONPatchType, payloadBytes, metav1.PatchOptions{})
-		return err
+		if len(payload) > 0 {
+			payloadBytes, _ := json.Marshal(payload)
+			_, err := clientSet.
+				CoreV1().
+				Services(kube.Namespace).
+				Patch(ctx, serviceName, types.JSONPatchType, payloadBytes, metav1.PatchOptions{})
+			return err
+		}
 	}
+
+	return nil
 }

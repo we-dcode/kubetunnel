@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func IsAvailable(host string, port string) bool{
+func IsAvailable(host string, port string) bool {
 
 	timeout := time.Second
 	conn, err := net.DialTimeout("tcp", net.JoinHostPort(host, port), timeout)
