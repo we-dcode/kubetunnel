@@ -76,18 +76,18 @@ func (ct *KubeTunnel) Run(tunnelConf KubeTunnelConf) {
 
 	kubefwdSyncChannel := make(chan error)
 	var hostFile *fwdport.HostFileWithLock
-	_ = hostFile // TODO: delete this line
+
 	go func(fsv *models.FRPServerValues) {
 		hostFile = kubefwd.Execute(ct.kubeClient, fsv, kubefwdSyncChannel)
 	}(frpServerValues)
 
 	err = <-kubefwdSyncChannel
 
-	log.Info("executing frpc")
-
 	if err != nil {
 		log.Panicf("fail executing kubefwd: %s", err.Error())
 	}
+
+	log.Info("executing frpc")
 
 	common := frpmodels.Common{
 		ServerAddress: fmt.Sprintf("%s-%s", constants.KubetunnelSlug, frpServerValues.ServiceName),
@@ -96,19 +96,9 @@ func (ct *KubeTunnel) Run(tunnelConf KubeTunnelConf) {
 
 	servicePortsPairs := servicecontext.ToFRPClientPairs(tunnelConf.LocalIP, tunnelConf.KubeTunnelPortMap, serviceContext)
 
-	frpcManager := frpc.NewManager(common, servicePortsPairs)
+	frpcManager := frpc.NewManager(common, servicePortsPairs, hostFile)
 
 	frpcManager.RunFRPc()
-	//
-	//for { // TODO: how to finish the execution here using signal? need to replace with frp manager?
-	//	err = frpc.Execute(common, hostFile, servicePortsPairs...)
-	//
-	//	if err != nil {
-	//		log.Panic(err.Error())
-	//	}
-	//	time.Sleep(100 * time.Millisecond)
-	//}
-
 }
 
 func CheckRootPermissions() error {

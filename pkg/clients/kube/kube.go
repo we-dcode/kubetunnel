@@ -11,6 +11,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	"strconv"
 )
 
 type Kube struct {
@@ -60,10 +61,15 @@ func (k *Kube) GetServiceContext(name string) (*servicecontext.ServiceContext, e
 	return &ctx, nil
 }
 
-func (k *Kube) PortForward(serviceName string, port int) (listeningPort int, err error) {
+func (k *Kube) PortForward(serviceName string, port string) (listeningPort int, err error) {
 
 	service, err := k.GetServiceContext(serviceName)
 
+	if err != nil {
+		return -1, err
+	}
+
+	portInt, err := strconv.Atoi(port)
 	if err != nil {
 		return -1, err
 	}
@@ -73,7 +79,7 @@ func (k *Kube) PortForward(serviceName string, port int) (listeningPort int, err
 		Labels: v1.LabelSelector{
 			MatchLabels: service.LabelSelector,
 		},
-		DestinationPort: port,
+		DestinationPort: portInt,
 		Config:          k.Config,
 		Clientset:       k.InnerKubeClient,
 	}

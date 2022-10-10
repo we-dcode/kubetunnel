@@ -13,7 +13,8 @@ import (
 	"github.com/we-dcode/kube-tunnel/pkg/clients/helm/models"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
 	"github.com/we-dcode/kube-tunnel/pkg/constants"
-	"github.com/we-dcode/kube-tunnel/pkg/kubefwd/kubefwdutil"
+	"github.com/we-dcode/kube-tunnel/pkg/notify/killsignal"
+	"github.com/we-dcode/kube-tunnel/pkg/utils/hostsutils"
 	"github.com/we-dcode/kube-tunnel/pkg/utils/tcputil"
 	"io/ioutil"
 	v1 "k8s.io/api/core/v1"
@@ -22,9 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/tools/cache"
 	"os"
-	"os/signal"
 	"sync"
-	"syscall"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -100,26 +99,12 @@ func Execute(kubeClient *kube.Kube, frpsValues *models.FRPServerValues, channel 
 		os.Exit(1)
 	}
 
-	kubefwdutil.HostsCleanup(hostFile)
+	hostsutils.HostsCleanup(hostFile)
 
 	log.Printf("HostFile management: %s", msg)
 
-	stopListenCh := make(chan struct{})
-
-	// Listen for shutdown signal from user
-	go func() {
-		sigint := make(chan os.Signal, 1)
-		signal.Notify(sigint, os.Interrupt, syscall.SIGTERM)
-		defer func() {
-			signal.Stop(sigint)
-		}()
-		<-sigint
-		log.Infof("Received shutdown signal")
-		close(stopListenCh)
-	}()
-
 	// if no context override
-	fwdsvcregistry.Init(stopListenCh)
+	fwdsvcregistry.Init(killsignal.CancellationChannel.C)
 
 	nsWatchesDone := &sync.WaitGroup{} // We'll wait on this to exit the program. Done() indicates that all namespace watches have shutdown cleanly.
 
@@ -143,11 +128,11 @@ func Execute(kubeClient *kube.Kube, frpsValues *models.FRPServerValues, channel 
 		RESTClient:        *restClient,
 		ClusterN:          0,
 		NamespaceN:        0,
-		ManualStopChannel: stopListenCh,
+		ManualStopChannel: killsignal.CancellationChannel.C,
 	}
 
 	go func(npo services.NamespaceOpts) {
-		watchServiceEvents(&nameSpaceOpts, stopListenCh)
+		watchServiceEvents(&nameSpaceOpts, killsignal.CancellationChannel.C)
 		nsWatchesDone.Done()
 	}(nameSpaceOpts)
 
@@ -183,16 +168,6 @@ func WaitUntilKubeTunnelIsUp(frpsValues *models.FRPServerValues, done <-chan str
 
 		time.Sleep(200 * time.Millisecond)
 	}
-
-	//for _, port := range frpsValues.Ports.Values {
-	//
-	//	// If Done already request (Interrupt event) then break the loop
-	//	if IsChannelClosed(done) {
-	//		break
-	//	}
-	//
-	//
-	//}
 }
 
 func IsChannelClosed(ch <-chan struct{}) bool {
@@ -231,11 +206,23 @@ func watchServiceEvents(opts *services.NamespaceOpts, stopListenCh <-chan struct
 		cache.ResourceEventHandlerFuncs{
 			AddFunc:    opts.AddServiceHandler,
 			DeleteFunc: opts.DeleteServiceHandler,
-			UpdateFunc: opts.UpdateServiceHandler,
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				UpdateServiceHandler(opts, oldObj, newObj)
+			},
 		},
 	)
 
 	// Start the informer, blocking call until we receive a stop signal
 	controller.Run(stopListenCh)
 	log.Infof("Stopped watching Service events in namespace %s in %s context", opts.Namespace, opts.Context)
+}
+
+func UpdateServiceHandler(opts *services.NamespaceOpts, oldObj interface{}, newObj interface{}) {
+	key, err := cache.MetaNamespaceKeyFunc(newObj)
+	if err == nil {
+		log.Printf("update service %s. replacing dns port-forwarding", key)
+	}
+
+	opts.DeleteServiceHandler(oldObj)
+	opts.AddServiceHandler(newObj)
 }

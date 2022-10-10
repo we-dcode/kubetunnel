@@ -3,25 +3,29 @@ package frpc
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"github.com/txn2/kubefwd/pkg/fwdport"
+	"github.com/we-dcode/kube-tunnel/pkg/constants"
 	"github.com/we-dcode/kube-tunnel/pkg/frp/models"
 	"github.com/we-dcode/kube-tunnel/pkg/notify"
 	"github.com/we-dcode/kube-tunnel/pkg/notify/killsignal"
+	"github.com/we-dcode/kube-tunnel/pkg/utils/hostsutils"
 	"github.com/we-dcode/kube-tunnel/pkg/utils/tcputil"
+	"strings"
 	"time"
 )
 
 type Manager struct {
 	Common      models.Common
 	ServicePair []ServicePair
+	HostFile    *fwdport.HostFileWithLock
 }
 
-func NewManager(common models.Common, servicePair []ServicePair) *Manager {
-
-	//hostFile *fwdport.HostFileWithLock
+func NewManager(common models.Common, servicePair []ServicePair, hostFile *fwdport.HostFileWithLock) *Manager {
 
 	return &Manager{
 		common,
 		servicePair,
+		hostFile,
 	}
 }
 
@@ -36,7 +40,9 @@ func (m *Manager) RunFRPc() {
 			log.Panicf("unable to start frp client, err: %s", err.Error())
 		}
 
-		ModifyHosts()
+		// Known limitation: host will never be rolled back to original dns record.
+		// We expect the user to use kubetunnel only when he wants to forward traffic to his local env.
+		//ChangeHostToKubeTunnel(m.HostFile, m.Common.ServerAddress)
 
 		go func() {
 			m.WaitForLocalPortToBecomeUnavailableAndCancel(cancelChan)
@@ -73,6 +79,9 @@ func (m *Manager) WaitForLocalPortToBecomeUnavailableAndCancel(channel *notify.C
 	}
 }
 
-func ModifyHosts() {
+func ChangeHostToKubeTunnel(hostFile *fwdport.HostFileWithLock, kubeTunnelServerDns string) {
 
+	originalServiceDns := strings.Replace(kubeTunnelServerDns, fmt.Sprintf("%s-", constants.KubetunnelSlug), "", 1)
+
+	hostsutils.ReplaceAddressForHost(hostFile.Hosts, originalServiceDns, kubeTunnelServerDns)
 }

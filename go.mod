@@ -7,6 +7,7 @@ require (
 	github.com/ahmetb/go-linq/v3 v3.2.0
 	github.com/fatedier/frp v0.44.0
 	github.com/gin-gonic/gin v1.8.1
+	github.com/maordavidov/go-k8s-portforward v0.0.0-20221009144733-274c2bdf14a1
 	github.com/mittwald/go-helm-client v0.11.3
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.8.1
@@ -15,6 +16,7 @@ require (
 	github.com/txn2/kubefwd v1.22.3
 	github.com/txn2/txeh v1.3.0
 	gopkg.in/yaml.v3 v3.0.1
+	gotest.tools/v3 v3.0.3
 	helm.sh/helm/v3 v3.9.1
 	k8s.io/api v0.25.2
 	k8s.io/apimachinery v0.25.2
@@ -104,7 +106,6 @@ require (
 	github.com/lib/pq v1.10.6 // indirect
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
-	github.com/maordavidov/go-k8s-portforward v0.0.0-20221009144733-274c2bdf14a1 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
