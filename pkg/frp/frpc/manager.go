@@ -40,16 +40,14 @@ func (m *Manager) RunFRPc() {
 			log.Panicf("unable to start frp client, err: %s", err.Error())
 		}
 
-		// Known limitation: host will never be rolled back to original dns record.
-		// We expect the user to use kubetunnel only when he wants to forward traffic to his local env.
-		//ChangeHostToKubeTunnel(m.HostFile, m.Common.ServerAddress)
-
 		go func() {
 			m.WaitForLocalPortToBecomeUnavailableAndCancel(cancelChan)
 		}()
 
 		cancelChan.WaitForCancellation()
 	}
+
+	log.Info("exit frp manager")
 
 }
 

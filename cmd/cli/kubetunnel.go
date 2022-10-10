@@ -52,7 +52,7 @@ func main() {
 
 	log.Print("")
 	log.Print("https://github.com/we-dcode/kube-tunnel")
-	log.Print("https://we.dcode.tech")
+	log.Print("https://dcode.tech")
 	log.Print("")
 
 	cmd := cli.NewRootCmd()

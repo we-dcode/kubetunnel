@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 var (
@@ -21,6 +22,10 @@ func init() {
 		signal.Notify(sigint, os.Interrupt, syscall.SIGTERM)
 		defer func() {
 			signal.Stop(sigint)
+
+			time.Sleep(time.Second * 1)
+			log.Info("Good bye")
+			os.Exit(0)
 		}()
 		<-sigint
 		log.Infof("Received shutdown signal")
