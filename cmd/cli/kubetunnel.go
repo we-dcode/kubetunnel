@@ -56,8 +56,6 @@ func NewRootCmd() *cobra.Command {
 		Use:   constants.KubetunnelSlug,
 		Short: "Duplex interaction with K8s cluster.",
 		Long:  "\"Deploy\" local service to running Kubernetes cluster and allow duplex interaction.",
-		Example: fmt.Sprintf("  sudo -E %s svc --help\n", constants.KubetunnelSlug) +
-			fmt.Sprintf("  sudo -E %s svc -n namespace -p '8080:80' svc_name", constants.KubetunnelSlug),
 	}
 
 	rootCmd.AddCommand(NewSvcCmd())
@@ -89,15 +87,19 @@ func NewSvcCmd() *cobra.Command {
 		Use:   "svc",
 		Short: "Duplex interaction with K8s cluster.",
 		Args:  cobra.ExactArgs(1),
+		Example: fmt.Sprintf("  sudo -E %s svc --help\n", constants.KubetunnelSlug) +
+			fmt.Sprintf("  sudo -E %s svc -p '8080:80' svc_name\n", constants.KubetunnelSlug) +
+			fmt.Sprintf("  sudo -E %s svc -c kubeconfig/path -p '8080:80' svc_name\n", constants.KubetunnelSlug) +
+			fmt.Sprintf("  sudo -E %s svc -c kubeconfig/path -n namespace -p '8080:80' svc_name\n", constants.KubetunnelSlug),
 		//ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		//	if len(args) != 0 {
-		//		return nil, cobra.ShellCompDirectiveNoFileComp
-		//	}
 		//
-		//	// TODO: list services from kube cluster
+		//	log.SetLevel(log.PanicLevel)
 		//
+		//	k := kube.MustNew(kubeConfig, namespace)
 		//
-		//	return getReleasesFromCluster(toComplete), cobra.ShellCompDirectiveNoFileComp
+		//	serviceNames, _ := k.ListServiceNamesWithoutKubeTunnel()
+		//
+		//	return serviceNames, cobra.ShellCompDirectiveNoSpace | cobra.ShellCompDirectiveNoFileComp
 		//},
 		// TODO: Consider change to RunE and modify all panic to return error
 		Run: func(cmd *cobra.Command, args []string) {
@@ -128,16 +130,15 @@ func NewSvcCmd() *cobra.Command {
 		},
 	}
 
-	// TODO: make a usage of kubeconfig explicit flag
-	svcCmd.Flags().StringVarP(&kubeConfig, "kubeconfig", "c", "", "absolute path to a kubectl config file")
-	svcCmd.Flags().StringVar(&gcVersion, "gc-version", Version, fmt.Sprintf("%s's Garbage Collector chart version", constants.KubetunnelSlug))
-	svcCmd.Flags().StringVar(&kubetunnelServerVersion, "server-version", Version, fmt.Sprintf("%s's Server chart version", constants.KubetunnelSlug))
-	svcCmd.Flags().StringVar(&localIp, "local-ip", "127.0.0.1", "local service binding ip, usually localhost")
+	svcCmd.Flags().StringVarP(&kubeConfig, "kubeconfig", "c", "", "absolute path to a kubectl config file.")
+	svcCmd.Flags().StringVar(&gcVersion, "gc-version", Version, fmt.Sprintf("%s's Garbage Collector chart version.", constants.KubetunnelSlug))
+	svcCmd.Flags().StringVar(&kubetunnelServerVersion, "server-version", Version, fmt.Sprintf("%s's Server chart version.", constants.KubetunnelSlug))
+	svcCmd.Flags().StringVar(&localIp, "local-ip", "127.0.0.1", "local service binding ip, usually localhost.")
 
-	svcCmd.Flags().StringVarP(&namespace, "namespace", "n", "default", "Specify a namespace")
+	svcCmd.Flags().StringVarP(&namespace, "namespace", "n", "", "specify namespace, default: taken from kubeconfig's context.")
 
 	// TODO: Change port to []string and allow multi -p ...
-	svcCmd.Flags().StringVarP(&port, "port", "p", "", "Specify a namespace")
+	svcCmd.Flags().StringVarP(&port, "port", "p", "", "localPort:remotePort (example: 8080:80).")
 	svcCmd.MarkFlagRequired("port")
 
 	return svcCmd

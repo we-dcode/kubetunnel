@@ -6,12 +6,14 @@ import (
 	portforward "github.com/maordavidov/go-k8s-portforward"
 	log "github.com/sirupsen/logrus"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube/servicecontext"
+	"github.com/we-dcode/kube-tunnel/pkg/constants"
 	v12 "k8s.io/api/authorization/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"strconv"
+	"strings"
 )
 
 type Kube struct {
@@ -22,12 +24,23 @@ type Kube struct {
 
 func MustNew(kubeConf string, namespace string) *Kube {
 
+	kube, err := New(kubeConf, namespace)
+
+	if err != nil {
+		log.Panic(err.Error())
+	}
+
+	return kube
+}
+
+func New(kubeConf string, namespace string) (kube *Kube, err error) {
+
 	kubeClient, config, err := createInClusterKubeClient()
 
 	if err != nil {
 
 		var kubeConfig clientcmd.ClientConfig
-		kubeClient, kubeConfig = mustCreateOutOfClusterKubeClient(kubeConf)
+		kubeClient, kubeConfig, _ = mustCreateOutOfClusterKubeClient(kubeConf)
 
 		config, _ = kubeConfig.ClientConfig()
 
@@ -36,11 +49,13 @@ func MustNew(kubeConf string, namespace string) *Kube {
 		}
 	}
 
-	return &Kube{
+	kube = &Kube{
 		kubeClient,
 		config,
 		namespace,
 	}
+
+	return kube, nil
 }
 
 func (k *Kube) GetServiceContext(name string) (*servicecontext.ServiceContext, error) {
@@ -59,6 +74,26 @@ func (k *Kube) GetServiceContext(name string) (*servicecontext.ServiceContext, e
 	}
 
 	return &ctx, nil
+}
+
+func (k *Kube) ListServiceNamesWithoutKubeTunnel() (serviceNames []string, err error) {
+
+	services, err := k.InnerKubeClient.CoreV1().Services(k.Namespace).List(context.Background(), v1.ListOptions{})
+
+	if err != nil || services == nil {
+		return
+	}
+
+	for _, svc := range services.Items {
+
+		if strings.HasPrefix(svc.Name, constants.KubetunnelSlug) {
+			continue
+		}
+
+		serviceNames = append(serviceNames, svc.Name)
+	}
+
+	return
 }
 
 func (k *Kube) PortForward(serviceName string, port string) (listeningPort int, err error) {
@@ -154,7 +189,7 @@ func createInClusterKubeClient() (*kubernetes.Clientset, *rest.Config, error) {
 	return client, inClusterConf, nil
 }
 
-func mustCreateOutOfClusterKubeClient(kubeConf string) (*kubernetes.Clientset, clientcmd.ClientConfig) {
+func mustCreateOutOfClusterKubeClient(kubeConf string) (*kubernetes.Clientset, clientcmd.ClientConfig, error) {
 
 	var kubeConfig clientcmd.ClientConfig
 
@@ -167,7 +202,7 @@ func mustCreateOutOfClusterKubeClient(kubeConf string) (*kubernetes.Clientset, c
 		conf, err := clientcmd.LoadFromFile(kubeConf)
 
 		if err != nil {
-			log.Panicf("err: unable to load kubeconfig from path: '%s'. \"%s\"", kubeConf, err.Error())
+			return nil, nil, fmt.Errorf("err: unable to load kubeconfig from path: '%s'. \"%s\"", kubeConf, err.Error())
 		}
 
 		kubeConfig = clientcmd.NewDefaultClientConfig(*conf, &clientcmd.ConfigOverrides{})
@@ -175,13 +210,13 @@ func mustCreateOutOfClusterKubeClient(kubeConf string) (*kubernetes.Clientset, c
 
 	config, err := kubeConfig.ClientConfig()
 	if err != nil {
-		log.Panicf("err: unable to read kubeconfig. \"%s\"", err.Error())
+		return nil, nil, fmt.Errorf("err: unable to read kubeconfig. \"%s\"", err.Error())
 	}
 
 	kubeClient, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		log.Panicf("err: unable to create kube client. \"%s\"", err.Error())
+		return nil, nil, fmt.Errorf("err: unable to create kube client. \"%s\"", err.Error())
 	}
 
-	return kubeClient, kubeConfig
+	return kubeClient, kubeConfig, nil
 }
