@@ -17,8 +17,12 @@ rules:
 # We need to manage Helm release secrets
 - apiGroups:
   - ""
+  - rbac.authorization.k8s.io
+  - roles.rbac.authorization.k8s.io
+  - authorization.k8s.io
   resources:
   - secrets
+  - rolebindings
   - roles
   verbs:
   - "*"
