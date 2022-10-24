@@ -1,0 +1,62 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: kubetunnels.application.dcode.tech
+spec:
+  group: application.dcode.tech
+  names:
+    kind: Kubetunnel
+    listKind: KubetunnelList
+    plural: kubetunnels
+    singular: kubetunnel
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+        - jsonPath: .spec.isConnected
+          name: Is Connected
+          type: boolean
+        - jsonPath: .spec.client
+          name: Client
+          type: string
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: Kubetunnel is the Schema for the kubetunnels API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: Spec defines the desired state of Kubetunnel
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+          status:
+            description: Status defines the observed state of Kubetunnel
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+          isConnected:
+            description: Connected defines if connected to client
+            type: boolean
+            default: false
+            x-kubernetes-preserve-unknown-fields: true
+          client:
+            description: Client defines name of client
+            type: string
+            default: none
+            x-kubernetes-preserve-unknown-fields: true
+
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
