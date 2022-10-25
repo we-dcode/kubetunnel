@@ -15,7 +15,6 @@ configInline: |
   dashboard_port = 7500
   enable_prometheus = true
 
-
 # Example parameters - these should be sent from client
 env_service_name: nginx
 env_ports: "80,8080"

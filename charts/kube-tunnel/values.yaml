@@ -15,6 +15,11 @@ configInline: |
   dashboard_port = 7500
   enable_prometheus = true
 
+operator:
+  namespace: operator-system
+  service:
+    name: operator-kube-tunnel-operator
+    port: 80
 
 # Example parameters - these should be sent from client
 env_service_name: nginx

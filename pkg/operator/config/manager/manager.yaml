@@ -86,7 +86,7 @@ spec:
   ipFamilyPolicy: SingleStack
   ports:
   - name: http
-    port: 8083
+    port: 80
     targetPort: http
   selector:
     control-plane: controller-manager

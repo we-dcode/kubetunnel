@@ -1,21 +1,18 @@
 package main
 
 import (
-	"context"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/robfig/cron/v3"
 	log "github.com/sirupsen/logrus"
-	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
-	"github.com/we-dcode/kube-tunnel/pkg/constants"
 	"github.com/we-dcode/kube-tunnel/pkg/utils/logutil"
 	"github.com/we-dcode/kube-tunnel/pkg/utils/tcputil"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -47,11 +44,8 @@ func main() {
 }
 
 func startJob() {
-	//s := gocron.NewScheduler(time.UTC)
-
-	//s.Every(5).Seconds().Do(func() { portChecker() })
 	job := cron.New()
-	job.AddFunc("@every 30s", func() {
+	job.AddFunc("@every 10s", func() {
 		portChecker()
 	})
 	job.Start()
@@ -67,35 +61,47 @@ func startGin() {
 func portChecker() {
 
 	log.Debugf("Starting portChecker.. ")
-	kube := connectToKubernetes() // TODO: change this one
 
 	portArr := strings.Split(getEnvVar("PORTS"), ",")
 	serviceName := getEnvVar("SERVICE_NAME")
-
+	podNamespace := getEnvVar("POD_NAMESPACE")
+	operatorSvcName := getEnvVar("OPERATOR_SVC_NAME")
+	operatorNamespace := getEnvVar("OPERATOR_NAMESPACE")
+	operatorPort := getEnvVar("OPERATOR_PORT")
 	log.Debugf("ports are %v", portArr)
 
 	for _, port := range portArr {
 		if tcputil.IsAvailable(hostname, port) == false {
 			log.Debugf("port %v is unavailable on host", port)
 
-			// TODO Make the operator do the patching of the service
-			error := patchServiceWithLabel(kube, serviceName, false)
-			if error != nil {
-				log.Debugf("error %v", error)
-			} else {
-				isConnected = false
+			if isConnected != false {
+				error := patchService(
+					podNamespace, serviceName, false, operatorSvcName,
+					operatorNamespace, operatorPort)
+				if error != nil {
+					log.Debugf("error %v", error)
+				} else {
+					isConnected = false
+				}
+
 			}
+
 			return
 		}
 	}
 
 	//  patch
 	log.Debugf("labeling service %v to %v\n", serviceName, true)
-	error := patchServiceWithLabel(kube, serviceName, true)
-	if error != nil {
-		log.Debugf("error %v", error)
-	} else {
-		isConnected = true
+	if isConnected != true {
+		error := patchService(
+			podNamespace, serviceName,
+			true, operatorSvcName,
+			operatorNamespace, operatorPort)
+		if error != nil {
+			log.Debugf("error %v", error)
+		} else {
+			isConnected = true
+		}
 	}
 
 }
@@ -104,118 +110,31 @@ func healthHandler(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, isConnected)
 }
 
-//  patchStringValue specifies a patch operation for a string.
-type patchStringValue struct {
-	Op    string `json:"op"`
-	Path  string `json:"path"`
-	Value string `json:"value"`
-}
+func patchService(namespace string, serviceName string, isConnected bool, operatorSvcName string, operatorNamespace string, operatorSvcPort string) error {
+	values := map[string]string{"Namespace": namespace,
+		"Name":        serviceName,
+		"IsConnected": strconv.FormatBool(isConnected)}
+	jsonData, err := json.Marshal(values)
 
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.Post(fmt.Sprintf(
+		"http://%s.%s.svc.cluster.local:%s/service", operatorSvcName, operatorNamespace, operatorSvcPort),
+		"application/json",
+		bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+	log.Printf("Response: %s", resp)
+	return nil
+
+}
 func getEnvVar(variable string) string {
 	envVar, ok := os.LookupEnv(variable)
 	if !ok {
 		log.Errorf("%v is not a present env variable", variable)
 	}
 	return envVar
-}
-
-func connectToKubernetes() *kube.Kube {
-
-	kubeClient := kube.MustNew("", "kubetunnel")
-
-	err := kubeClient.ConnectivityCheck()
-	if err != nil {
-		log.Errorf(err.Error())
-	}
-
-	return kubeClient
-}
-
-func patchServiceWithLabel(kube *kube.Kube, serviceName string, connected bool) error {
-
-	svcContext, err := kube.GetServiceContext(serviceName)
-	if err != nil {
-		log.Errorf("fail to get service: '%s' context, error: %s", serviceName, err.Error())
-	}
-
-	clientSet := kube.InnerKubeClient
-	log.Debugf(kube.Namespace)
-	ctx := context.TODO()
-
-	slugPrefix := fmt.Sprintf("%s-", constants.KubetunnelSlug)
-
-	// TODO: Check if service needs to be updated...
-
-	if !connected {
-
-		log.Debugf("removing true from %v\n", serviceName)
-		var payload []patchStringValue
-
-		for key, valueWithSlug := range svcContext.LabelSelector {
-
-			if strings.EqualFold(key, constants.KubetunnelSlug) {
-				continue
-			}
-
-			slugAlreadyRemoved := strings.Contains(valueWithSlug, constants.KubetunnelSlug) == false
-			if slugAlreadyRemoved {
-				continue
-			}
-
-			valueWithoutSlug := strings.Replace(valueWithSlug, slugPrefix, "", 1)
-
-			payload = append(payload, patchStringValue{
-
-				Op:    "replace",
-				Path:  fmt.Sprintf("/spec/selector/%s", key),
-				Value: valueWithoutSlug,
-			})
-		}
-
-		if len(payload) > 0 {
-			payloadBytes, _ := json.Marshal(payload)
-			_, err := clientSet.
-				CoreV1().
-				Services(kube.Namespace).
-				Patch(ctx, serviceName, types.JSONPatchType, payloadBytes, metav1.PatchOptions{})
-			return err
-		}
-
-	} else {
-		log.Debugf("adding true to %v\n", serviceName)
-
-		var payload []patchStringValue
-
-		for key, valueWithoutSlug := range svcContext.LabelSelector {
-
-			if strings.EqualFold(key, constants.KubetunnelSlug) {
-				continue
-			}
-
-			alreadyContainSlug := strings.Contains(valueWithoutSlug, constants.KubetunnelSlug)
-
-			if alreadyContainSlug {
-				continue
-			}
-
-			valueWithSlug := fmt.Sprintf("%s%s", slugPrefix, valueWithoutSlug)
-
-			payload = append(payload, patchStringValue{
-
-				Op:    "replace",
-				Path:  fmt.Sprintf("/spec/selector/%s", key),
-				Value: valueWithSlug,
-			})
-		}
-		if len(payload) > 0 {
-			payloadBytes, _ := json.Marshal(payload)
-			_, err := clientSet.
-				CoreV1().
-				Services(kube.Namespace).
-				Patch(ctx, serviceName, types.JSONPatchType, payloadBytes, metav1.PatchOptions{})
-			return err
-		}
-	}
-
-	return nil
 }

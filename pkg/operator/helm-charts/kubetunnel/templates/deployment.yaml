@@ -36,7 +36,12 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: kube-tunnel-server
-          image: dcodetech/kubetunnel:1.0.5
+          image: eliranw/kube-tunnel:0.5
+          env:
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
           envFrom:
           - configMapRef:
               name: {{ .Release.Name }}-env
