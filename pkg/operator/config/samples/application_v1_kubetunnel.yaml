@@ -7,7 +7,3 @@ spec:
   env_ports: "8080"
   pod_selector_labels:
     name: nginx
-
-  operator:
-    service:
-      name: operator-kube-tunnel-operator
