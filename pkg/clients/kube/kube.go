@@ -2,6 +2,7 @@ package kube
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	portforward "github.com/maordavidov/go-k8s-portforward"
 	log "github.com/sirupsen/logrus"
@@ -129,6 +130,26 @@ func (k *Kube) PortForward(serviceName string, port string) (listeningPort int, 
 	// TODO: how to stop? pf.Stop()..? do we need to listen on stop??
 
 	return listeningPort, nil
+}
+
+func (k *Kube) CreateKubeTunnelResource(resource KubeTunnelResource) error {
+
+	body, err := json.Marshal(resource)
+
+	if err != nil {
+		return err
+	}
+
+	body = []byte("{\"kind\":\"Kubetunnel\",\"apiVersion\":\"application.dcode.tech/v1\",\"metadata\":{\"name\":\"kubetunnel-nginx\"},\"spec\":{\"env_ports\":\"8080\",\"env_service_name\":\"nginx\",\"pod_selector_labels\":{\"name\":\"nginx\"}}}")
+
+	data, err := k.InnerKubeClient.RESTClient().
+		Post().
+		AbsPath(fmt.Sprintf("/apis/%s/namespaces/%s/%ss", constants.KubeTunnelApiVersion, k.Namespace, constants.KubetunnelSlug)).
+		Body(body).
+		DoRaw(context.TODO())
+
+	log.Debug(string(data))
+	return nil
 }
 
 func (k *Kube) ConnectivityCheck() error {

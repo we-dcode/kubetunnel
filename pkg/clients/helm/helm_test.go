@@ -27,13 +27,13 @@ func TestInstallingKubetunnelFrp(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestInstallingKubetunnelGC(t *testing.T) {
+func TestInstallingOperator(t *testing.T) {
 
-	client := kube.MustNew("", "")
+	client := kube.MustNew("/Users/maordavidov/dcode/gitlab-cicd-kubeconfig.yaml", "kubetunnel")
 
 	helmClient := helm.MustNew(client)
 
-	err := helmClient.InstallOrUpgradeGC("")
+	err := helmClient.InstallKubeTunnelOperator("0.0.3")
 
 	assert.NoError(t, err)
 }

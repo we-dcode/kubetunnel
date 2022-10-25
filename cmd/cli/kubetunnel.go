@@ -117,7 +117,7 @@ func NewSvcCmd() *cobra.Command {
 
 			kubeTunnel := pkg.MustNewKubeTunnel(kubeConfig, namespace)
 
-			kubeTunnel.Run(pkg.KubeTunnelConf{
+			kubeTunnel.CreateTunnel(pkg.KubeTunnelConf{
 				GCVersion:         gcVersion,
 				KubeTunnelVersion: kubetunnelServerVersion,
 				ServiceName:       args[0],

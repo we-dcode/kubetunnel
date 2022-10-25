@@ -70,27 +70,33 @@ func (c *Helm) InstallOrUpgradeFrpServer(chartVersion string, values *models.FRP
 	return install(c, constants.KubeTunnelChartName, chartVersion, releaseName, valuesYaml)
 }
 
-func (c *Helm) InstallOrUpgradeGC(chartVersion string) error {
+func (c *Helm) InstallKubeTunnelOperator(chartVersion string) error {
 
-	releaseName := "kubetunnel-gc"
+	releaseName := "kubetunnel-operator"
 
-	return install(c, constants.GarbageCollectorChart, chartVersion, releaseName, []byte{})
+	return installWithNamespace(c, constants.KubetunnelOperatorChartName, chartVersion, releaseName, constants.KubetunnelSlug, []byte{})
 }
 
 func install(c *Helm, chartName string, chartVersion string, releaseName string, valuesYaml []byte) error {
 
+	return installWithNamespace(c, chartName, chartVersion, releaseName, c.namespace, valuesYaml)
+}
+
+func installWithNamespace(c *Helm, chartName string, chartVersion string, releaseName string, namespace string, valuesYaml []byte) error {
+
 	chartSpec := helmclient.ChartSpec{
-		ReleaseName: releaseName,
-		Recreate:    false,
-		ChartName:   chartName,
-		Atomic:      true,
-		Version:     chartVersion,
-		Namespace:   c.namespace,
-		UpgradeCRDs: false,
-		Wait:        true,
-		Replace:     false,
-		ValuesYaml:  string(valuesYaml),
-		Timeout:     time.Second * 10,
+		ReleaseName:     releaseName,
+		Recreate:        false,
+		ChartName:       chartName,
+		Atomic:          true,
+		Version:         chartVersion,
+		Namespace:       namespace,
+		CreateNamespace: true,
+		UpgradeCRDs:     false,
+		Wait:            true,
+		Replace:         false,
+		ValuesYaml:      string(valuesYaml),
+		Timeout:         time.Second * 30,
 	}
 
 	if _, err := c.helmClient.InstallOrUpgradeChart(context.Background(), &chartSpec, nil); err != nil {
