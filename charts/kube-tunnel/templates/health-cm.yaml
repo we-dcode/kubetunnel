@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: Secret
-metadata:
-  name: {{ .Release.Name }}-health
-  labels:
-  {{- include "kubetunnel.labels" . | nindent 4 }}
-stringData:
-  health.sh: |
-    {{.Values.healthInline | nindent 4}}

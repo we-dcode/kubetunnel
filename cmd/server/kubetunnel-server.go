@@ -68,6 +68,7 @@ func portChecker() {
 	operatorSvcName := getEnvVar("OPERATOR_SVC_NAME")
 	operatorNamespace := getEnvVar("OPERATOR_NAMESPACE")
 	operatorPort := getEnvVar("OPERATOR_PORT")
+
 	log.Debugf("ports are %v", portArr)
 
 	for _, port := range portArr {

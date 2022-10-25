@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ .Release.Name }}-env
-data:
-  PORTS: {{ .Values.env_ports }}
-  SERVICE_NAME: {{  .Values.env_service_name }}

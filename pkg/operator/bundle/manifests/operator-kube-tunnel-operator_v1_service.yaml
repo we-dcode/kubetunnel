@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app.kubernetes.io/instance: kube-tunnel-operator
+  name: operator-kube-tunnel-operator
+spec:
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+  selector:
+    control-plane: controller-manager
+  type: ClusterIP
+status:
+  loadBalancer: {}

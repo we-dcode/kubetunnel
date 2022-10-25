@@ -1,0 +1,4 @@
+namespace: "operator-system"
+service:
+  name: "kube-tunnel-operator"
+  port: 80

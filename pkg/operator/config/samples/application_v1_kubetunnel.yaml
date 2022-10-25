@@ -9,7 +9,5 @@ spec:
     name: nginx
 
   operator:
-    namespace: operator-system
     service:
       name: operator-kube-tunnel-operator
-      port: "80"

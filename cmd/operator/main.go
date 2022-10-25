@@ -74,7 +74,7 @@ func main() {
 		enableLeaderElection bool
 	)
 
-	setupLog.Info("Now starting Gin..")
+	setupLog.Info("Starting Gin server..")
 	go startGin()
 
 	// #### Manager pod configuration
@@ -137,6 +137,12 @@ func main() {
 		}
 
 		// Setup manager with Helm API
+
+		w.OverrideValues = map[string]string{}
+		w.OverrideValues["operator.namespace"] = getEnvVar("POD_NAMESPACE")
+		w.OverrideValues["operator.service.port"] = getEnvVar("SERVICE_PORT")
+		w.OverrideValues["operator.service.name"] = getEnvVar("SERVICE_NAME")
+		fmt.Printf("Values: %+v", w.OverrideValues)
 
 		r, err := reconciler.New(
 			reconciler.WithChart(*w.Chart),
@@ -252,7 +258,7 @@ func patchServiceWithLabel(k *kube.Kube, serviceName string, connected bool) err
 			payload = append(payload, kube.PatchOperation{
 
 				Op:    "replace",
-				Path:  fmt.Sprintf("/spec/selector/%s", key),
+				Path:  fmt.Sprintf("/spec/selector/%s", strings.ReplaceAll(key, "/", "~1")),
 				Value: valueWithoutSlug,
 			})
 		}
@@ -288,9 +294,10 @@ func patchServiceWithLabel(k *kube.Kube, serviceName string, connected bool) err
 			payload = append(payload, kube.PatchOperation{
 
 				Op:    "replace",
-				Path:  fmt.Sprintf("/spec/selector/%s", key),
+				Path:  fmt.Sprintf("/spec/selector/%s", strings.ReplaceAll(key, "/", "~1")),
 				Value: valueWithSlug,
 			})
+
 		}
 		if len(payload) > 0 {
 			fmt.Printf("Payload: %s", payload)
@@ -306,4 +313,12 @@ func patchServiceWithLabel(k *kube.Kube, serviceName string, connected bool) err
 	}
 
 	return nil
+}
+
+func getEnvVar(variable string) string {
+	envVar, ok := os.LookupEnv(variable)
+	if !ok {
+		fmt.Errorf("%v is not a present env variable", variable)
+	}
+	return envVar
 }
