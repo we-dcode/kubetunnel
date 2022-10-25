@@ -6,13 +6,13 @@ import (
 	"github.com/txn2/kubefwd/pkg/fwdport"
 	"github.com/txn2/kubefwd/pkg/utils"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/helm"
-	"github.com/we-dcode/kube-tunnel/pkg/clients/helm/models"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube/servicecontext"
 	"github.com/we-dcode/kube-tunnel/pkg/constants"
 	"github.com/we-dcode/kube-tunnel/pkg/frp/frpc"
 	frpmodels "github.com/we-dcode/kube-tunnel/pkg/frp/models"
 	"github.com/we-dcode/kube-tunnel/pkg/kubefwd"
+	"github.com/we-dcode/kube-tunnel/pkg/models"
 )
 
 type KubeTunnel struct {
@@ -65,29 +65,24 @@ func (ct *KubeTunnel) Install(operatorVersion string) {
 
 func (ct *KubeTunnel) CreateTunnel(tunnelConf KubeTunnelConf) {
 
-	//err := ct.helmClient.InstallOrUpgradeGC(tunnelConf.GCVersion)
-	//if err != nil {
-	//	log.Panic(err.Error())
-	//}
-
 	serviceContext, err := ct.kubeClient.GetServiceContext(tunnelConf.ServiceName)
 	if err != nil {
 		log.Panic(err.Error())
 	}
 
-	frpServerValues := servicecontext.ToFRPServerValues(serviceContext)
+	kubeTunnelResourceSpec := servicecontext.ToKubeTunnelResourceSpec(serviceContext)
 
-	err = ct.helmClient.InstallOrUpgradeFrpServer(tunnelConf.KubeTunnelVersion, frpServerValues)
-	if err != nil {
-		log.Panic(err.Error())
+	if err = ct.kubeClient.CreateKubeTunnelResource(kubeTunnelResourceSpec); err != nil {
+
+		log.Panicf("fail creating kubetunnel CRD, internal error: %s", err.Error())
 	}
 
 	kubefwdSyncChannel := make(chan error)
 	var hostFile *fwdport.HostFileWithLock
 
-	go func(fsv *models.FRPServerValues) {
-		hostFile = kubefwd.Execute(ct.kubeClient, fsv, kubefwdSyncChannel)
-	}(frpServerValues)
+	go func(ktrs *models.KubeTunnelResourceSpec) {
+		hostFile = kubefwd.Execute(ct.kubeClient, ktrs, kubefwdSyncChannel)
+	}(&kubeTunnelResourceSpec)
 
 	err = <-kubefwdSyncChannel
 
@@ -98,7 +93,7 @@ func (ct *KubeTunnel) CreateTunnel(tunnelConf KubeTunnelConf) {
 	log.Info("executing frpc")
 
 	common := frpmodels.Common{
-		ServerAddress: fmt.Sprintf("%s-%s", constants.KubetunnelSlug, frpServerValues.ServiceName),
+		ServerAddress: fmt.Sprintf("%s-%s", constants.KubetunnelSlug, kubeTunnelResourceSpec.ServiceName),
 		ServerPort:    constants.FRPServerPort,
 	}
 

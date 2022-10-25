@@ -3,15 +3,15 @@ package servicecontext
 import (
 	"fmt"
 	"github.com/ahmetb/go-linq/v3"
-	"github.com/we-dcode/kube-tunnel/pkg/clients/helm/models"
 	"github.com/we-dcode/kube-tunnel/pkg/constants"
 	"github.com/we-dcode/kube-tunnel/pkg/frp/frpc"
 	frpmodels "github.com/we-dcode/kube-tunnel/pkg/frp/models"
+	kubeTunnelModels "github.com/we-dcode/kube-tunnel/pkg/models"
 	v1 "k8s.io/api/core/v1"
 	"strconv"
 )
 
-func ToFRPServerValues(ctx *ServiceContext) *models.FRPServerValues {
+func ToKubeTunnelResourceSpec(ctx *ServiceContext) kubeTunnelModels.KubeTunnelResourceSpec {
 
 	var ports []string
 
@@ -26,8 +26,8 @@ func ToFRPServerValues(ctx *ServiceContext) *models.FRPServerValues {
 		labelSelectors[key] = fmt.Sprintf("%s-%s", constants.KubetunnelSlug, value)
 	}
 
-	return &models.FRPServerValues{
-		Ports:             models.Ports{Values: ports},
+	return kubeTunnelModels.KubeTunnelResourceSpec{
+		Ports:             kubeTunnelModels.Ports{Values: ports},
 		ServiceName:       ctx.ServiceName,
 		PodSelectorLabels: labelSelectors,
 	}

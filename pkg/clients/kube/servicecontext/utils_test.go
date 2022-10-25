@@ -26,7 +26,7 @@ func TestServiceContextToFRPSValues(t *testing.T) {
 		},
 	}
 
-	values := servicecontext.ToFRPServerValues(&svcContext)
+	values := servicecontext.ToKubeTunnelResourceSpec(&svcContext)
 
 	assert.NotNil(t, values)
 

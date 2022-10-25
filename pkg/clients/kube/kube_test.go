@@ -3,8 +3,7 @@ package kube_test
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
-	"github.com/we-dcode/kube-tunnel/pkg/constants"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"github.com/we-dcode/kube-tunnel/pkg/models"
 	"testing"
 )
 
@@ -56,20 +55,11 @@ func TestCreateKubeTunnelResource(t *testing.T) {
 
 	client := kube.MustNew("/Users/maordavidov/dcode/gitlab-cicd-kubeconfig.yaml", "kubetunnel")
 
-	err := client.CreateKubeTunnelResource(kube.KubeTunnelResource{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       constants.KubetunnelSlug,
-			APIVersion: constants.KubeTunnelApiVersion,
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "kubetunnel-nginx",
-		},
-		Spec: kube.KubeTunnelResourceSpec{
-			Ports:       kube.Ports{Values: []string{"80"}},
-			ServiceName: "nginx",
-			PodSelectorLabels: map[string]string{
-				"app": "nginx",
-			},
+	err := client.CreateKubeTunnelResource(models.KubeTunnelResourceSpec{
+		Ports:       models.Ports{Values: []string{"80", "8081"}},
+		ServiceName: "nginx",
+		PodSelectorLabels: map[string]string{
+			"app": "nginx",
 		},
 	})
 

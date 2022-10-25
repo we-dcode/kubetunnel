@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube/servicecontext"
 	"github.com/we-dcode/kube-tunnel/pkg/constants"
+	"github.com/we-dcode/kube-tunnel/pkg/models"
 	v12 "k8s.io/api/authorization/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -132,15 +133,24 @@ func (k *Kube) PortForward(serviceName string, port string) (listeningPort int, 
 	return listeningPort, nil
 }
 
-func (k *Kube) CreateKubeTunnelResource(resource KubeTunnelResource) error {
+func (k *Kube) CreateKubeTunnelResource(resourceSpec models.KubeTunnelResourceSpec) error {
+
+	resource := models.KubeTunnelResource{
+		TypeMeta: v1.TypeMeta{
+			Kind:       constants.KubeTunnelKind,
+			APIVersion: constants.KubeTunnelApiVersion,
+		},
+		Metadata: v1.ObjectMeta{
+			Name: resourceSpec.KubeTunnelServiceName(),
+		},
+		Spec: resourceSpec,
+	}
 
 	body, err := json.Marshal(resource)
 
 	if err != nil {
 		return err
 	}
-
-	body = []byte("{\"kind\":\"Kubetunnel\",\"apiVersion\":\"application.dcode.tech/v1\",\"metadata\":{\"name\":\"kubetunnel-nginx\"},\"spec\":{\"env_ports\":\"8080\",\"env_service_name\":\"nginx\",\"pod_selector_labels\":{\"name\":\"nginx\"}}}")
 
 	data, err := k.InnerKubeClient.RESTClient().
 		Post().
@@ -149,7 +159,7 @@ func (k *Kube) CreateKubeTunnelResource(resource KubeTunnelResource) error {
 		DoRaw(context.TODO())
 
 	log.Debug(string(data))
-	return nil
+	return err
 }
 
 func (k *Kube) ConnectivityCheck() error {

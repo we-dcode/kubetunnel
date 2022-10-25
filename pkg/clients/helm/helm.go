@@ -5,10 +5,8 @@ import (
 	"fmt"
 	helmclient "github.com/mittwald/go-helm-client"
 	log "github.com/sirupsen/logrus"
-	"github.com/we-dcode/kube-tunnel/pkg/clients/helm/models"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
 	"github.com/we-dcode/kube-tunnel/pkg/constants"
-	"gopkg.in/yaml.v3"
 	"helm.sh/helm/v3/pkg/repo"
 	"time"
 )
@@ -58,17 +56,17 @@ func MustNew(kube *kube.Kube) *Helm {
 	}
 }
 
-func (c *Helm) InstallOrUpgradeFrpServer(chartVersion string, values *models.FRPServerValues) error {
-
-	releaseName := values.KubeTunnelServiceName()
-
-	valuesYaml, err := yaml.Marshal(values)
-	if err != nil {
-		return fmt.Errorf("err: fail to parse values.yaml more info: '%s'", err.Error())
-	}
-
-	return install(c, constants.KubeTunnelChartName, chartVersion, releaseName, valuesYaml)
-}
+//func (c *Helm) InstallOrUpgradeFrpServer(chartVersion string, values *models.FRPServerValues) error {
+//
+//	releaseName := values.KubeTunnelServiceName()
+//
+//	valuesYaml, err := yaml.Marshal(values)
+//	if err != nil {
+//		return fmt.Errorf("err: fail to parse values.yaml more info: '%s'", err.Error())
+//	}
+//
+//	return install(c, constants.KubeTunnelChartName, chartVersion, releaseName, valuesYaml)
+//}
 
 func (c *Helm) InstallKubeTunnelOperator(chartVersion string) error {
 

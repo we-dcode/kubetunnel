@@ -10,9 +10,9 @@ import (
 	"github.com/txn2/kubefwd/pkg/fwdport"
 	"github.com/txn2/kubefwd/pkg/fwdsvcregistry"
 	"github.com/txn2/txeh"
-	"github.com/we-dcode/kube-tunnel/pkg/clients/helm/models"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
 	"github.com/we-dcode/kube-tunnel/pkg/constants"
+	"github.com/we-dcode/kube-tunnel/pkg/models"
 	"github.com/we-dcode/kube-tunnel/pkg/notify/killsignal"
 	"github.com/we-dcode/kube-tunnel/pkg/utils/hostsutils"
 	"github.com/we-dcode/kube-tunnel/pkg/utils/tcputil"
@@ -80,7 +80,7 @@ func (splitter *LogOutputSplitter) Write(p []byte) (n int, err error) {
 }
 
 // Execute - This code was copied from kubefwd and modified a bit to support kubetunnel requirements
-func Execute(kubeClient *kube.Kube, frpsValues *models.FRPServerValues, channel chan error) *fwdport.HostFileWithLock {
+func Execute(kubeClient *kube.Kube, frpsValues *models.KubeTunnelResourceSpec, channel chan error) *fwdport.HostFileWithLock {
 
 	log.Println("Press [Ctrl-C] to stop forwarding.")
 	log.Println("'cat /etc/hosts' to see all host entries.")
@@ -154,7 +154,7 @@ func Execute(kubeClient *kube.Kube, frpsValues *models.FRPServerValues, channel 
 	return nameSpaceOpts.HostFile
 }
 
-func WaitUntilKubeTunnelIsUp(frpsValues *models.FRPServerValues, done <-chan struct{}) {
+func WaitUntilKubeTunnelIsUp(frpsValues *models.KubeTunnelResourceSpec, done <-chan struct{}) {
 
 	host := frpsValues.KubeTunnelServiceName()
 
