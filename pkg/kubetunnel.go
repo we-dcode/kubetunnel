@@ -21,8 +21,6 @@ type KubeTunnel struct {
 }
 
 type KubeTunnelConf struct {
-	GCVersion         string
-	KubeTunnelVersion string
 	ServiceName       string
 	KubeTunnelPortMap map[string]string
 	LocalIP           string

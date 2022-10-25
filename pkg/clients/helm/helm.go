@@ -72,7 +72,7 @@ func (c *Helm) InstallKubeTunnelOperator(chartVersion string) error {
 
 	releaseName := "kubetunnel-operator"
 
-	return installWithNamespace(c, constants.KubetunnelOperatorChartName, chartVersion, releaseName, constants.KubetunnelSlug, []byte{})
+	return install(c, constants.KubetunnelOperatorChartName, chartVersion, releaseName, []byte{})
 }
 
 func install(c *Helm, chartName string, chartVersion string, releaseName string, valuesYaml []byte) error {

@@ -58,7 +58,8 @@ func NewRootCmd() *cobra.Command {
 		Long:  "\"Deploy\" local service to running Kubernetes cluster and allow duplex interaction.",
 	}
 
-	rootCmd.AddCommand(NewSvcCmd())
+	rootCmd.AddCommand(NewInstallKubeTunnelCmd())
+	rootCmd.AddCommand(NewCreateTunnelCmd())
 	rootCmd.AddCommand(NewVersionCmd())
 	rootCmd.AddCommand(cmds.NewCmdCompletion(os.Stdout, ""))
 	//rootCmd.SetHelpCommand()
@@ -79,18 +80,47 @@ func NewVersionCmd() *cobra.Command {
 	return versionCmd
 }
 
-func NewSvcCmd() *cobra.Command {
+func NewInstallKubeTunnelCmd() *cobra.Command {
 
-	var kubeConfig, gcVersion, kubetunnelServerVersion, localIp, namespace, port string
+	var kubeConfig, namespace, kubetunnelVersion string
 
 	svcCmd := &cobra.Command{
-		Use:   "svc",
+		Use:   "install",
+		Short: "Install kubetunnel operator to k8s cluster.",
+		Args:  cobra.ExactArgs(1),
+		Example: fmt.Sprintf("  %s install --help\n", constants.KubetunnelSlug) +
+			fmt.Sprintf("  %s install\n", constants.KubetunnelSlug) +
+			fmt.Sprintf("  %s install -c kubeconfig/path\n", constants.KubetunnelSlug) +
+			fmt.Sprintf("  %s install -c kubeconfig/path --operator-version 1.2.3\n", constants.KubetunnelSlug),
+
+		// TODO: Consider change to RunE and modify all panic to return error
+		Run: func(cmd *cobra.Command, args []string) {
+
+			kubeTunnel := pkg.MustNewKubeTunnel(kubeConfig, namespace)
+
+			kubeTunnel.Install(kubetunnelVersion)
+		},
+	}
+
+	svcCmd.Flags().StringVarP(&kubeConfig, "kubeconfig", "c", "", "absolute path to a kubectl config file.")
+	svcCmd.Flags().StringVar(&kubetunnelVersion, "operator-version", Version, fmt.Sprintf("%s's Operator chart version.", constants.KubeTunnelKind))
+	svcCmd.Flags().StringVarP(&namespace, "namespace", "n", constants.KubetunnelSlug, "operator's namespace")
+
+	return svcCmd
+}
+
+func NewCreateTunnelCmd() *cobra.Command {
+
+	var kubeConfig, kubetunnelVersion, localIp, namespace, port string
+
+	svcCmd := &cobra.Command{
+		Use:   "create-tunnel",
 		Short: "Duplex interaction with K8s cluster.",
 		Args:  cobra.ExactArgs(1),
-		Example: fmt.Sprintf("  sudo -E %s svc --help\n", constants.KubetunnelSlug) +
-			fmt.Sprintf("  sudo -E %s svc -p '8080:80' svc_name\n", constants.KubetunnelSlug) +
-			fmt.Sprintf("  sudo -E %s svc -c kubeconfig/path -p '8080:80' svc_name\n", constants.KubetunnelSlug) +
-			fmt.Sprintf("  sudo -E %s svc -c kubeconfig/path -n namespace -p '8080:80' svc_name\n", constants.KubetunnelSlug),
+		Example: fmt.Sprintf("  sudo -E %s create-tunnel --help\n", constants.KubetunnelSlug) +
+			fmt.Sprintf("  sudo -E %s create-tunnel -p '8080:80' svc_name\n", constants.KubetunnelSlug) +
+			fmt.Sprintf("  sudo -E %s create-tunnel -c kubeconfig/path -p '8080:80' svc_name\n", constants.KubetunnelSlug) +
+			fmt.Sprintf("  sudo -E %s create-tunnel -c kubeconfig/path -n namespace -p '8080:80' svc_name\n", constants.KubetunnelSlug),
 		//ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		//
 		//	log.SetLevel(log.PanicLevel)
@@ -103,6 +133,8 @@ func NewSvcCmd() *cobra.Command {
 		//},
 		// TODO: Consider change to RunE and modify all panic to return error
 		Run: func(cmd *cobra.Command, args []string) {
+
+			// TODO: Validate kubetunnel is installed and return error if not
 
 			portForwardRegex := regexp.MustCompile(`^(?P<local>[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]):(?P<remote>[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$`)
 
@@ -118,9 +150,7 @@ func NewSvcCmd() *cobra.Command {
 			kubeTunnel := pkg.MustNewKubeTunnel(kubeConfig, namespace)
 
 			kubeTunnel.CreateTunnel(pkg.KubeTunnelConf{
-				GCVersion:         gcVersion,
-				KubeTunnelVersion: kubetunnelServerVersion,
-				ServiceName:       args[0],
+				ServiceName: args[0],
 				KubeTunnelPortMap: map[string]string{
 					matches[localIndex]: matches[remoteIndex],
 				},
@@ -131,8 +161,7 @@ func NewSvcCmd() *cobra.Command {
 	}
 
 	svcCmd.Flags().StringVarP(&kubeConfig, "kubeconfig", "c", "", "absolute path to a kubectl config file.")
-	svcCmd.Flags().StringVar(&gcVersion, "gc-version", Version, fmt.Sprintf("%s's Garbage Collector chart version.", constants.KubetunnelSlug))
-	svcCmd.Flags().StringVar(&kubetunnelServerVersion, "server-version", Version, fmt.Sprintf("%s's Server chart version.", constants.KubetunnelSlug))
+	svcCmd.Flags().StringVar(&kubetunnelVersion, "operator-version", Version, fmt.Sprintf("%s's Operator chart version.", constants.KubeTunnelKind))
 	svcCmd.Flags().StringVar(&localIp, "local-ip", "127.0.0.1", "local service binding ip, usually localhost.")
 
 	svcCmd.Flags().StringVarP(&namespace, "namespace", "n", "", "specify namespace, default: taken from kubeconfig's context.")
