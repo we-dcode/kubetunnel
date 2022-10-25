@@ -55,10 +55,12 @@ func MustNewKubeTunnel(kubeConfig string, namespace string) *KubeTunnel {
 	}
 }
 
-func (ct *KubeTunnel) Install() {
+func (ct *KubeTunnel) Install(operatorVersion string) {
 
-	ct.helmClient.InstallOrUpgradeGC()
-
+	err := ct.helmClient.InstallKubeTunnelOperator(operatorVersion)
+	if err != nil {
+		log.Panic(err.Error())
+	}
 }
 
 func (ct *KubeTunnel) CreateTunnel(tunnelConf KubeTunnelConf) {
