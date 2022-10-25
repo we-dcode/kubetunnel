@@ -26,5 +26,4 @@ data:
 kind: ConfigMap
 metadata:
   name: operator-manager-config
-  namespace: {{ .Values.namespace }}
 

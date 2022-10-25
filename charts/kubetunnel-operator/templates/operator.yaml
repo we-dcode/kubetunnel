@@ -5,7 +5,6 @@ metadata:
   labels:
     control-plane: controller-manager
   name: operator-controller-manager-metrics-service
-  namespace: {{ .Values.namespace }}
 spec:
   ports:
   - name: https
@@ -21,7 +20,6 @@ metadata:
   labels:
     app.kubernetes.io/instance: kube-tunnel-operator
   name: operator-kube-tunnel-operator
-  namespace: {{ .Values.namespace }}
 spec:
   internalTrafficPolicy: Cluster
   ipFamilies:
@@ -41,7 +39,6 @@ metadata:
   labels:
     control-plane: controller-manager
   name: operator-controller-manager
-  namespace: {{ .Values.namespace }}
 spec:
   replicas: 1
   selector:
@@ -133,7 +130,6 @@ metadata:
   labels:
     app.kubernetes.io/instance: kube-tunnel-operator
   name: {{ .Values.service.name }}
-  namespace: {{ .Values.namespace }}
 spec:
   internalTrafficPolicy: Cluster
   ipFamilies:
