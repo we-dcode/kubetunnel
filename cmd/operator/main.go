@@ -259,7 +259,7 @@ func patchServiceWithLabel(k *kube.Kube, serviceName string, connected bool) err
 			payload = append(payload, kube.PatchOperation{
 
 				Op:    "replace",
-				Path:  fmt.Sprintf("/spec/selector/%s", key),
+				Path:  fmt.Sprintf("/spec/selector/%s", strings.ReplaceAll(key, "/", "~1")),
 				Value: valueWithoutSlug,
 			})
 		}
@@ -295,7 +295,7 @@ func patchServiceWithLabel(k *kube.Kube, serviceName string, connected bool) err
 			payload = append(payload, kube.PatchOperation{
 
 				Op:    "replace",
-				Path:  fmt.Sprintf("/spec/selector/%s", key),
+				Path:  fmt.Sprintf("/spec/selector/%s", strings.ReplaceAll(key, "/", "~1")),
 				Value: valueWithSlug,
 			})
 		}

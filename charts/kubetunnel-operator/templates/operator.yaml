@@ -89,7 +89,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: dcodetech/kube-tunnel-operator:0.0.4
+        image: dcodetech/kubetunnel-operator:0.0.5
         livenessProbe:
           httpGet:
             path: /healthz
