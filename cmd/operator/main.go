@@ -30,7 +30,6 @@ import (
 	"os"
 	"runtime"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/operator-framework/helm-operator-plugins/pkg/annotation"
@@ -213,7 +212,7 @@ func serviceHandler(c *gin.Context) {
 
 func connectToKubernetes(namespace string) *kube.Kube {
 
-	kubeClient := kube.MustNew("~/.kube/config", namespace)
+	kubeClient := kube.MustNew("", namespace)
 
 	err := kubeClient.ConnectivityCheck()
 	if err != nil {
@@ -234,35 +233,46 @@ func patchServiceWithLabel(k *kube.Kube, serviceName string, connected bool) err
 	log.Debugf(k.Namespace)
 	ctx := context.TODO()
 
-	slugPrefix := fmt.Sprintf("%s-", constants.KubetunnelSlug)
+	//slugPrefix := fmt.Sprintf("%s-", constants.KubetunnelSlug)
 
 	// TODO: Check if service needs to be updated...
 
-	if !connected {
+	if connected == false {
 
 		log.Debugf("removing true from %v\n", serviceName)
 		var payload []kube.PatchOperation
 
-		for key, valueWithSlug := range svcContext.LabelSelector {
-
-			if strings.EqualFold(key, constants.KubetunnelSlug) {
-				continue
-			}
-
-			slugAlreadyRemoved := strings.Contains(valueWithSlug, constants.KubetunnelSlug) == false
-			if slugAlreadyRemoved {
-				continue
-			}
-
-			valueWithoutSlug := strings.Replace(valueWithSlug, slugPrefix, "", 1)
-
-			payload = append(payload, kube.PatchOperation{
-
-				Op:    "replace",
-				Path:  fmt.Sprintf("/spec/selector/%s", strings.ReplaceAll(key, "/", "~1")),
-				Value: valueWithoutSlug,
-			})
+		if _, exists := svcContext.LabelSelector[constants.KubetunnelSlug]; exists == false {
+			return nil
 		}
+
+		payload = append(payload, kube.PatchOperation{
+
+			Op:    "remove",
+			Path:  fmt.Sprintf("/spec/selector/%s", constants.KubetunnelSlug),
+			Value: serviceName,
+		})
+		//
+		//for key, valueWithSlug := range svcContext.LabelSelector {
+		//
+		//	if strings.EqualFold(key, constants.KubetunnelSlug) {
+		//		continue
+		//	}
+		//
+		//	slugAlreadyRemoved := strings.Contains(valueWithSlug, constants.KubetunnelSlug) == false
+		//	if slugAlreadyRemoved {
+		//		continue
+		//	}
+		//
+		//	valueWithoutSlug := strings.Replace(valueWithSlug, slugPrefix, "", 1)
+		//
+		//	payload = append(payload, kube.PatchOperation{
+		//
+		//		Op:    "replace",
+		//		Path:  fmt.Sprintf("/spec/selector/%s", strings.ReplaceAll(key, "/", "~1")),
+		//		Value: valueWithoutSlug,
+		//	})
+		//}
 
 		if len(payload) > 0 {
 			payloadBytes, _ := json.Marshal(payload)
@@ -278,27 +288,38 @@ func patchServiceWithLabel(k *kube.Kube, serviceName string, connected bool) err
 
 		var payload []kube.PatchOperation
 
-		for key, valueWithoutSlug := range svcContext.LabelSelector {
-
-			if strings.EqualFold(key, constants.KubetunnelSlug) {
-				continue
-			}
-
-			alreadyContainSlug := strings.Contains(valueWithoutSlug, constants.KubetunnelSlug)
-
-			if alreadyContainSlug {
-				continue
-			}
-
-			valueWithSlug := fmt.Sprintf("%s%s", slugPrefix, valueWithoutSlug)
-
-			payload = append(payload, kube.PatchOperation{
-
-				Op:    "replace",
-				Path:  fmt.Sprintf("/spec/selector/%s", strings.ReplaceAll(key, "/", "~1")),
-				Value: valueWithSlug,
-			})
+		if _, exists := svcContext.LabelSelector[constants.KubetunnelSlug]; exists {
+			return nil
 		}
+
+		payload = append(payload, kube.PatchOperation{
+
+			Op:    "replace",
+			Path:  fmt.Sprintf("/spec/selector/%s", constants.KubetunnelSlug),
+			Value: serviceName,
+		})
+
+		//for key, valueWithoutSlug := range svcContext.LabelSelector {
+		//
+		//	if strings.EqualFold(key, constants.KubetunnelSlug) {
+		//		continue
+		//	}
+		//
+		//	alreadyContainSlug := strings.Contains(valueWithoutSlug, constants.KubetunnelSlug)
+		//
+		//	if alreadyContainSlug {
+		//		continue
+		//	}
+		//
+		//	valueWithSlug := fmt.Sprintf("%s%s", slugPrefix, valueWithoutSlug)
+		//
+		//	payload = append(payload, kube.PatchOperation{
+		//
+		//		Op:    "replace",
+		//		Path:  fmt.Sprintf("/spec/selector/%s", strings.ReplaceAll(key, "/", "~1")),
+		//		Value: valueWithSlug,
+		//	})
+		//}
 		if len(payload) > 0 {
 			payloadBytes, _ := json.Marshal(payload)
 			_, err := clientSet.

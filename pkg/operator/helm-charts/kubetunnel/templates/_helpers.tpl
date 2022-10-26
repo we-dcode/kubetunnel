@@ -46,7 +46,6 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "kubetunnel.selectorLabels" -}}
-kube-tunnel: "true"
 {{- end }}
 
 {{/*

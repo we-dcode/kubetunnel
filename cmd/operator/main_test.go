@@ -1,19 +1,15 @@
 package main
 
 import (
-	"fmt"
+	"gotest.tools/v3/assert"
 	"testing"
 )
 
 func TestPatchServiceWithLabel(t *testing.T) {
 
-	kube := connectToKubernetes("operator-system") // TODO: change this one
+	kube := connectToKubernetes("kubetunnel") // TODO: change this one
 
-	error := patchServiceWithLabel(kube, "nginx", true)
-	if error != nil {
-		fmt.Errorf("error %v", error)
-	} else {
-		fmt.Print("No error!")
-	}
+	err := patchServiceWithLabel(kube, "nginx", true)
 
+	assert.NilError(t, err)
 }
