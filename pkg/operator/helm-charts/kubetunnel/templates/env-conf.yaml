@@ -5,3 +5,6 @@ metadata:
 data:
   PORTS: {{ .Values.env_ports | quote }}
   SERVICE_NAME: {{  .Values.env_service_name }}
+  OPERATOR_NAMESPACE: {{  .Values.operator.namespace }}
+  OPERATOR_SVC_NAME: {{  .Values.operator.service.name }}
+  OPERATOR_PORT: {{ .Values.operator.service.port | quote }}
