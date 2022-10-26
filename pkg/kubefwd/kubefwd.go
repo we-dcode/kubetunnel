@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/bep/debounce"
 	"github.com/txn2/kubefwd/cmd/kubefwd/services"
 	"github.com/txn2/kubefwd/pkg/fwdcfg"
 	"github.com/txn2/kubefwd/pkg/fwdhost"
 	"github.com/txn2/kubefwd/pkg/fwdport"
+	"github.com/txn2/kubefwd/pkg/fwdservice"
 	"github.com/txn2/kubefwd/pkg/fwdsvcregistry"
 	"github.com/txn2/txeh"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
@@ -19,10 +21,13 @@ import (
 	"io/ioutil"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/tools/cache"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -204,7 +209,9 @@ func watchServiceEvents(opts *services.NamespaceOpts, stopListenCh <-chan struct
 		&v1.Service{},
 		0,
 		cache.ResourceEventHandlerFuncs{
-			AddFunc:    opts.AddServiceHandler,
+			AddFunc: func(obj interface{}) {
+				AddServiceHandler(opts, obj)
+			},
 			DeleteFunc: opts.DeleteServiceHandler,
 			UpdateFunc: func(oldObj, newObj interface{}) {
 				UpdateServiceHandler(opts, oldObj, newObj)
@@ -217,6 +224,68 @@ func watchServiceEvents(opts *services.NamespaceOpts, stopListenCh <-chan struct
 	log.Infof("Stopped watching Service events in namespace %s in %s context", opts.Namespace, opts.Context)
 }
 
+func AddServiceHandler(opts *services.NamespaceOpts, obj interface{}) {
+
+	svc, ok := obj.(*v1.Service)
+	if !ok {
+		opts.AddServiceHandler(obj)
+		return
+	}
+
+	selector := labels.Set(svc.Spec.Selector).AsSelector()
+
+	_, containsKey := svc.Spec.Selector[constants.KubetunnelSlug]
+
+	if containsKey == false && strings.HasPrefix(svc.Name, constants.KubetunnelSlug) == false {
+
+		notKubeTunnelAgent, err := labels.NewRequirement(fmt.Sprintf("%s-app", constants.KubetunnelSlug), selection.NotEquals, []string{svc.Name})
+
+		if err != nil {
+
+			log.Panicf("PANIC: unable to port-forward svc: '%s', please see internal error and try again. err: %s", svc.Name, err.Error())
+		}
+
+		selector = selector.Add([]labels.Requirement{*notKubeTunnelAgent}...)
+
+	}
+
+	// Check if service has a valid config to do forwarding
+
+	stringSelector := selector.String()
+
+	if stringSelector == "" {
+		log.Warnf("WARNING: No Pod selector for service %s.%s, skipping\n", svc.Name, svc.Namespace)
+		return
+	}
+
+	// Define a service to forward
+	svcfwd := &fwdservice.ServiceFWD{
+		ClientSet:                opts.ClientSet,
+		Context:                  opts.Context,
+		Namespace:                opts.Namespace,
+		Hostfile:                 opts.HostFile,
+		ClientConfig:             opts.ClientConfig,
+		RESTClient:               opts.RESTClient,
+		NamespaceN:               opts.NamespaceN,
+		ClusterN:                 opts.ClusterN,
+		Domain:                   opts.Domain,
+		PodLabelSelector:         stringSelector,
+		NamespaceServiceLock:     opts.NamespaceIPLock,
+		Svc:                      svc,
+		Headless:                 svc.Spec.ClusterIP == "None",
+		PortForwards:             make(map[string]*fwdport.PortForwardOpts),
+		SyncDebouncer:            debounce.New(5 * time.Second),
+		DoneChannel:              make(chan struct{}),
+		PortMap:                  opts.ParsePortMap(nil),
+		ForwardConfigurationPath: "",
+		ForwardIPReservations:    nil,
+	}
+
+	// Add the service to the catalog of services being forwarded
+	fwdsvcregistry.Add(svcfwd)
+
+}
+
 func UpdateServiceHandler(opts *services.NamespaceOpts, oldObj interface{}, newObj interface{}) {
 	key, err := cache.MetaNamespaceKeyFunc(newObj)
 	if err == nil {
@@ -224,5 +293,6 @@ func UpdateServiceHandler(opts *services.NamespaceOpts, oldObj interface{}, newO
 	}
 
 	opts.DeleteServiceHandler(oldObj)
-	opts.AddServiceHandler(newObj)
+
+	AddServiceHandler(opts, newObj)
 }

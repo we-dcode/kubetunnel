@@ -17,7 +17,6 @@ import (
 type Manager struct {
 	Common      models.Common
 	ServicePair []ServicePair
-	HostFile    *fwdport.HostFileWithLock
 }
 
 func NewManager(common models.Common, servicePair []ServicePair, hostFile *fwdport.HostFileWithLock) *Manager {
@@ -25,7 +24,6 @@ func NewManager(common models.Common, servicePair []ServicePair, hostFile *fwdpo
 	return &Manager{
 		common,
 		servicePair,
-		hostFile,
 	}
 }
 

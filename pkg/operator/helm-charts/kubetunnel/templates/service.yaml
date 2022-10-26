@@ -14,4 +14,4 @@ spec:
       protocol: {{$v.protocol | default "TCP"}}
     {{- end}}
   selector:
-    {{- include "kubetunnel.selectorLabels" . | nindent 4 }}
+    kubetunnel-app: {{  .Values.env_service_name }}

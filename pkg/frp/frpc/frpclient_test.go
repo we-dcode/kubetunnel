@@ -35,7 +35,7 @@ func TestInstallingKubetunnelGC(t *testing.T) {
 		},
 	}
 
-	err := frpc.Execute(common, nil, svc...)
+	_, err := frpc.Execute(common, svc)
 
 	assert.NoError(t, err)
 }

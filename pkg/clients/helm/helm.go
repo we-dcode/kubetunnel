@@ -72,19 +72,19 @@ func (c *Helm) InstallKubeTunnelOperator(chartVersion string) error {
 
 	releaseName := "kubetunnel-operator"
 
-	return install(c, constants.KubetunnelOperatorChartName, chartVersion, releaseName, []byte{})
+	return install(c, constants.KubetunnelOperatorChartName, chartVersion, releaseName, true, []byte{})
 }
 
-func install(c *Helm, chartName string, chartVersion string, releaseName string, valuesYaml []byte) error {
+func install(c *Helm, chartName string, chartVersion string, releaseName string, replace bool, valuesYaml []byte) error {
 
-	return installWithNamespace(c, chartName, chartVersion, releaseName, c.namespace, valuesYaml)
+	return installWithNamespace(c, chartName, chartVersion, releaseName, c.namespace, replace, valuesYaml)
 }
 
-func installWithNamespace(c *Helm, chartName string, chartVersion string, releaseName string, namespace string, valuesYaml []byte) error {
+func installWithNamespace(c *Helm, chartName string, chartVersion string, releaseName string, namespace string, replace bool, valuesYaml []byte) error {
 
 	chartSpec := helmclient.ChartSpec{
 		ReleaseName:     releaseName,
-		Recreate:        false,
+		Recreate:        replace,
 		ChartName:       chartName,
 		Atomic:          true,
 		Version:         chartVersion,
@@ -92,7 +92,7 @@ func installWithNamespace(c *Helm, chartName string, chartVersion string, releas
 		CreateNamespace: true,
 		UpgradeCRDs:     true,
 		Wait:            true,
-		Replace:         false,
+		Replace:         replace,
 		ValuesYaml:      string(valuesYaml),
 		Timeout:         time.Second * 30,
 	}

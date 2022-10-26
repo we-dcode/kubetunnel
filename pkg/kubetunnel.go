@@ -13,6 +13,7 @@ import (
 	frpmodels "github.com/we-dcode/kube-tunnel/pkg/frp/models"
 	"github.com/we-dcode/kube-tunnel/pkg/kubefwd"
 	"github.com/we-dcode/kube-tunnel/pkg/models"
+	"os"
 )
 
 type KubeTunnel struct {
@@ -27,6 +28,10 @@ type KubeTunnelConf struct {
 }
 
 func MustNewKubeTunnel(kubeConfig string, namespace string, privileged bool) *KubeTunnel {
+
+	if len(kubeConfig) > 0 {
+		_ = os.Setenv("KUBECONFIG", kubeConfig) // Workaround for internal client created by kubefwd
+	}
 
 	kubeClient := kube.MustNew(kubeConfig, namespace)
 
