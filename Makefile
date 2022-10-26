@@ -5,7 +5,7 @@ BINARY=kubetunnel
 $(shell mkdir -p ${DIR})
 
 APP_VERSION="0.2.7" # TODO: get this one from env var
-OPERATOR_VERSION="0.0.6"
+OPERATOR_VERSION="0.0.8"
 # Go build flags
 LDFLAGS=-ldflags "-X main.Version=${APP_VERSION} -X main.OperatorVersion=${OPERATOR_VERSION}"
 
