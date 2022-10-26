@@ -65,3 +65,17 @@ func TestCreateKubeTunnelResource(t *testing.T) {
 
 	assert.NoError(t, err)
 }
+
+func TestGetPodLabelsByServiceName(t *testing.T) {
+
+	client := kube.MustNew("/Users/maordavidov/dcode/gitlab-cicd-kubeconfig.yaml", "kubetunnel")
+
+	context, err := client.GetServiceContext("nginx")
+
+	assert.NoError(t, err)
+	assert.NotNil(t, context)
+
+	labels, err := client.GetPodLabelsByLabelSelector("kubetunnel", context.LabelSelector)
+	assert.NoError(t, err)
+	assert.NotNil(t, labels)
+}

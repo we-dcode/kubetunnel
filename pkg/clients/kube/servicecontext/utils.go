@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-func ToKubeTunnelResourceSpec(ctx *ServiceContext) kubeTunnelModels.KubeTunnelResourceSpec {
+func ToKubeTunnelResourceSpec(ctx *ServiceContext, podLabels map[string]string) kubeTunnelModels.KubeTunnelResourceSpec {
 
 	var ports []string
 
@@ -19,17 +19,19 @@ func ToKubeTunnelResourceSpec(ctx *ServiceContext) kubeTunnelModels.KubeTunnelRe
 		return strconv.Itoa(int(kubePort.(v1.ServicePort).Port))
 	}).ToSlice(&ports)
 
-	labelSelectors := make(map[string]string)
+	//labelSelectors := make(map[string]string)
+	//
+	//for key, value := range ctx.LabelSelector {
+	//
+	//	labelSelectors[key] = fmt.Sprintf("%s-%s", constants.KubetunnelSlug, value)
+	//}
 
-	for key, value := range ctx.LabelSelector {
-
-		labelSelectors[key] = fmt.Sprintf("%s-%s", constants.KubetunnelSlug, value)
-	}
+	podLabels[constants.KubetunnelSlug] = ctx.ServiceName
 
 	return kubeTunnelModels.KubeTunnelResourceSpec{
-		Ports:             kubeTunnelModels.Ports{Values: ports},
-		ServiceName:       ctx.ServiceName,
-		PodSelectorLabels: labelSelectors,
+		Ports:       kubeTunnelModels.Ports{Values: ports},
+		ServiceName: ctx.ServiceName,
+		PodLabels:   podLabels,
 	}
 }
 

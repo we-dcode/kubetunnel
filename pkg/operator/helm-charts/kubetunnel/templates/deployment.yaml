@@ -4,7 +4,7 @@ metadata:
   name: {{ .Release.Name }}
   labels:
     {{- include "kubetunnel.labels" . | nindent 4 }}
-    {{- range $key, $val := .Values.pod_selector_labels }}
+    {{- range $key, $val := .Values.pod_labels }}
     {{ $key }}: {{ $val | quote }}
     {{- end}}
 spec:
@@ -23,7 +23,7 @@ spec:
       labels:
         {{- include "kubetunnel.labels" . | nindent 8 }}
         meta.helm.sh/release-name:  {{ .Release.Name }}
-        {{- range $key, $val := .Values.pod_selector_labels }}
+        {{- range $key, $val := .Values.pod_labels }}
         {{ $key }}: {{ $val | quote }}
         {{- end}}
     spec:

@@ -65,12 +65,17 @@ func (ct *KubeTunnel) Install(operatorVersion string) {
 
 func (ct *KubeTunnel) CreateTunnel(tunnelConf KubeTunnelConf) {
 
-	serviceContext, err := ct.kubeClient.GetServiceContext(tunnelConf.ServiceName)
+	svcCtx, err := ct.kubeClient.GetServiceContext(tunnelConf.ServiceName)
 	if err != nil {
 		log.Panic(err.Error())
 	}
 
-	kubeTunnelResourceSpec := servicecontext.ToKubeTunnelResourceSpec(serviceContext)
+	labels, err := ct.kubeClient.GetPodLabelsByLabelSelector(ct.kubeClient.Namespace, svcCtx.LabelSelector)
+	if err != nil {
+		log.Panic(err.Error())
+	}
+
+	kubeTunnelResourceSpec := servicecontext.ToKubeTunnelResourceSpec(svcCtx, labels)
 
 	if err = ct.kubeClient.CreateKubeTunnelResource(kubeTunnelResourceSpec); err != nil {
 
@@ -97,7 +102,7 @@ func (ct *KubeTunnel) CreateTunnel(tunnelConf KubeTunnelConf) {
 		ServerPort:    constants.FRPServerPort,
 	}
 
-	servicePortsPairs := servicecontext.ToFRPClientPairs(tunnelConf.LocalIP, tunnelConf.KubeTunnelPortMap, serviceContext)
+	servicePortsPairs := servicecontext.ToFRPClientPairs(tunnelConf.LocalIP, tunnelConf.KubeTunnelPortMap, svcCtx)
 
 	frpcManager := frpc.NewManager(common, servicePortsPairs, hostFile)
 

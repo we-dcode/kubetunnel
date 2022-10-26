@@ -11,6 +11,7 @@ import (
 	"github.com/we-dcode/kube-tunnel/pkg/models"
 	v12 "k8s.io/api/authorization/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -60,9 +61,36 @@ func New(kubeConf string, namespace string) (kube *Kube, err error) {
 	return kube, nil
 }
 
-func (k *Kube) GetServiceContext(name string) (*servicecontext.ServiceContext, error) {
+func (k *Kube) GetPodLabelsByLabelSelector(namespace string, podLabelSelectors map[string]string) (map[string]string, error) {
 
-	svc, err := k.InnerKubeClient.CoreV1().Services(k.Namespace).Get(context.Background(), name, v1.GetOptions{})
+	labelSelector, err := labels.ValidatedSelectorFromSet(podLabelSelectors)
+	if err != nil {
+		return nil, err
+	}
+
+	pods, err := k.InnerKubeClient.CoreV1().Pods(namespace).List(context.Background(), v1.ListOptions{
+		LabelSelector: labelSelector.String(),
+		Limit:         1,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(pods.Items) == 0 {
+
+		return nil, fmt.Errorf("could not find pods. host: '%s' namespace: '%s', selector: '%s'", k.Config.Host, namespace, labelSelector.String())
+	}
+
+	return pods.Items[0].Labels, nil
+}
+
+func (k *Kube) GetServiceContextWithNamespace(name string, namespace string) (*servicecontext.ServiceContext, error) {
+	if len(namespace) == 0 {
+		namespace = k.Namespace
+	}
+
+	svc, err := k.InnerKubeClient.CoreV1().Services(namespace).Get(context.Background(), name, v1.GetOptions{})
 	if err != nil {
 
 		err = fmt.Errorf("namespace: '%s' svc: '%s' not found at host: '%s'", k.Namespace, name, k.Config.Host)
@@ -76,6 +104,10 @@ func (k *Kube) GetServiceContext(name string) (*servicecontext.ServiceContext, e
 	}
 
 	return &ctx, nil
+}
+func (k *Kube) GetServiceContext(name string) (*servicecontext.ServiceContext, error) {
+
+	return k.GetServiceContextWithNamespace(name, k.Namespace)
 }
 
 func (k *Kube) ListServiceNamesWithoutKubeTunnel() (serviceNames []string, err error) {
