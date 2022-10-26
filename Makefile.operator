@@ -3,7 +3,7 @@
 # To re-generate a bundle for another specific version without changing the standard setup, you can:
 # - use the VERSION as arg of the bundle target (e.g make bundle VERSION=0.0.2)
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
-VERSION ?= 0.0.7
+VERSION ?= 0.0.8
 
 # CHANNELS define the bundle channels used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g CHANNELS = "candidate,fast,stable")
@@ -87,10 +87,10 @@ help: ## Display this help.
 
 run: helm-operator ## Run against the configured Kubernetes cluster in ~/.kube/config
 	$(HELM_OPERATOR) run
-	
+
 docker-build: ## Build docker image with the manager.
 	docker build -t ${IMG} -f Dockerfile.operator --no-cache .
-	
+
 docker-push: ## Push docker image with the manager.
 	docker push ${IMG}
 
@@ -110,7 +110,7 @@ vet: ## Run go vet against code.
 
 test: manifests generate fmt vet envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test ./... -coverprofile cover.out
-	
+
 ##@ Deployment
 
 install: kustomize ## Install CRDs into the K8s cluster specified in ~/.kube/config.
