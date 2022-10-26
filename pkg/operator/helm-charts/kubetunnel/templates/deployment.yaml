@@ -43,6 +43,9 @@ spec:
             httpGet:
               path: /health
               port: 8080
+            periodSeconds: 1
+            failureThreshold: 1
+
           env:
           - name: POD_NAMESPACE
             valueFrom:
