@@ -88,7 +88,6 @@ func NewInstallKubeTunnelCmd() *cobra.Command {
 	svcCmd := &cobra.Command{
 		Use:   "install",
 		Short: "Install kubetunnel operator to k8s cluster.",
-		Args:  cobra.ExactArgs(1),
 		Example: fmt.Sprintf("  %s install --help\n", constants.KubetunnelSlug) +
 			fmt.Sprintf("  %s install\n", constants.KubetunnelSlug) +
 			fmt.Sprintf("  %s install -c kubeconfig/path\n", constants.KubetunnelSlug) +
