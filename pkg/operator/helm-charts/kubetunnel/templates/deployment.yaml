@@ -36,7 +36,7 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: kube-tunnel-server
-          image: dcodetech/kubetunnel:1.1.0
+          image: dcodetech/kubetunnel:1.1.1
           env:
           - name: POD_NAMESPACE
             valueFrom:

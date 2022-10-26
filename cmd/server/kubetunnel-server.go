@@ -45,7 +45,7 @@ func main() {
 
 func startJob() {
 	job := cron.New()
-	job.AddFunc("@every 10s", func() {
+	job.AddFunc("@every 1s", func() {
 		portChecker()
 	})
 	job.Start()
