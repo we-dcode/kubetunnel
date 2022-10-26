@@ -108,7 +108,12 @@ func portChecker() {
 }
 
 func healthHandler(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, isConnected)
+	if isConnected {
+		c.IndentedJSON(http.StatusOK, isConnected)
+	} else {
+		c.IndentedJSON(http.StatusServiceUnavailable, isConnected)
+
+	}
 }
 
 func patchService(namespace string, serviceName string, isConnected bool, operatorSvcName string, operatorNamespace string, operatorSvcPort string) error {

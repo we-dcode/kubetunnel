@@ -36,7 +36,11 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: kube-tunnel-server
-          image: dcodetech/kubetunnel:1.1.1
+          image: dcodetech/kubetunnel:1.1.2
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
           env:
           - name: POD_NAMESPACE
             valueFrom:

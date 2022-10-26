@@ -16,7 +16,6 @@ require (
 	github.com/stretchr/testify v1.8.0
 	github.com/txn2/kubefwd v1.22.3
 	github.com/txn2/txeh v1.3.0
-	gopkg.in/yaml.v3 v3.0.1
 	gotest.tools/v3 v3.0.3
 	helm.sh/helm/v3 v3.9.1
 	k8s.io/api v0.25.2
@@ -176,6 +175,7 @@ require (
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apiextensions-apiserver v0.25.0 // indirect
 	k8s.io/apiserver v0.25.0 // indirect
 	k8s.io/cli-runtime v0.24.3 // indirect
