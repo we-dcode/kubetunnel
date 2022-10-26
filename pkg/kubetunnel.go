@@ -26,7 +26,7 @@ type KubeTunnelConf struct {
 	LocalIP           string
 }
 
-func MustNewKubeTunnel(kubeConfig string, namespace string) *KubeTunnel {
+func MustNewKubeTunnel(kubeConfig string, namespace string, privileged bool) *KubeTunnel {
 
 	kubeClient := kube.MustNew(kubeConfig, namespace)
 
@@ -40,9 +40,11 @@ func MustNewKubeTunnel(kubeConfig string, namespace string) *KubeTunnel {
 		log.Panicf(err.Error())
 	}
 
-	err = CheckRootPermissions()
-	if err != nil {
-		log.Panicf(err.Error())
+	if privileged {
+		err = CheckRootPermissions()
+		if err != nil {
+			log.Panicf(err.Error())
+		}
 	}
 
 	helmClient := helm.MustNew(kubeClient)

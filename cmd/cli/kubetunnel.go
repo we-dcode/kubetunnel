@@ -96,7 +96,7 @@ func NewInstallKubeTunnelCmd() *cobra.Command {
 		// TODO: Consider change to RunE and modify all panic to return error
 		Run: func(cmd *cobra.Command, args []string) {
 
-			kubeTunnel := pkg.MustNewKubeTunnel(kubeConfig, namespace)
+			kubeTunnel := pkg.MustNewKubeTunnel(kubeConfig, namespace, false)
 
 			kubeTunnel.Install(kubetunnelVersion)
 		},
@@ -147,7 +147,7 @@ func NewCreateTunnelCmd() *cobra.Command {
 			localIndex := portForwardRegex.SubexpIndex("local")
 			remoteIndex := portForwardRegex.SubexpIndex("remote")
 
-			kubeTunnel := pkg.MustNewKubeTunnel(kubeConfig, namespace)
+			kubeTunnel := pkg.MustNewKubeTunnel(kubeConfig, namespace, true)
 
 			kubeTunnel.CreateTunnel(pkg.KubeTunnelConf{
 				ServiceName: args[0],
