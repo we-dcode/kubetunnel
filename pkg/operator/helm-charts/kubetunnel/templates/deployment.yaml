@@ -4,6 +4,7 @@ metadata:
   name: {{ .Release.Name }}
   labels:
     {{- include "kubetunnel.labels" . | nindent 4 }}
+    kubetunnel-app: {{  .Values.env_service_name }}
     {{- range $key, $val := .Values.pod_labels }}
     {{ $key }}: {{ $val | quote }}
     {{- end}}
@@ -13,7 +14,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "kubetunnel.selectorLabels" . | nindent 6 }}
+      kubetunnel-app: {{  .Values.env_service_name }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -22,6 +23,7 @@ spec:
       {{- end }}
       labels:
         {{- include "kubetunnel.labels" . | nindent 8 }}
+        kubetunnel-app: {{  .Values.env_service_name }}
         meta.helm.sh/release-name:  {{ .Release.Name }}
         {{- range $key, $val := .Values.pod_labels }}
         {{ $key }}: {{ $val | quote }}
@@ -36,7 +38,7 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: kube-tunnel-server
-          image: dcodetech/kubetunnel:1.1.2
+          image: dcodetech/kubetunnel:1.1.4
           readinessProbe:
             httpGet:
               path: /health
