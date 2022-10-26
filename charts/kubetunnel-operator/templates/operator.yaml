@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    control-plane: controller-manager
+    we-dcode-app: kubetunnel-operator
   name: operator-controller-manager-metrics-service
 spec:
   ports:
@@ -12,7 +12,7 @@ spec:
     protocol: TCP
     targetPort: https
   selector:
-    control-plane: controller-manager
+    we-dcode-app: kubetunnel-operator
 ---
 apiVersion: v1
 kind: Service
@@ -30,26 +30,26 @@ spec:
     port: 80
     targetPort: http
   selector:
-    control-plane: controller-manager
+    we-dcode-app: kubetunnel-operator
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    control-plane: controller-manager
-  name: operator-controller-manager
+    we-dcode-app: kubetunnel-operator
+  name: kubetunnel-operator
 spec:
   replicas: 1
   selector:
     matchLabels:
-      control-plane: controller-manager
+      we-dcode-app: kubetunnel-operator
   template:
     metadata:
       annotations:
         kubectl.kubernetes.io/default-container: manager
       labels:
-        control-plane: controller-manager
+        we-dcode-app: kubetunnel-operator
     spec:
       containers:
       - args:
@@ -89,7 +89,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: dcodetech/kubetunnel-operator:0.0.10
+        image: dcodetech/kubetunnel-operator:0.0.14
         livenessProbe:
           httpGet:
             path: /healthz
@@ -110,10 +110,10 @@ spec:
         resources:
           limits:
             cpu: 500m
-            memory: 128Mi
+            memory: 512Mi
           requests:
-            cpu: 10m
-            memory: 64Mi
+            cpu: 500m
+            memory: 512Mi
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -140,5 +140,5 @@ spec:
     port: {{ .Values.service.port }}
     targetPort: http
   selector:
-    control-plane: controller-manager
+    we-dcode-app: kubetunnel-operator
   type: ClusterIP
