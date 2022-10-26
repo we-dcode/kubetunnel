@@ -5,9 +5,9 @@ BINARY=kubetunnel
 $(shell mkdir -p ${DIR})
 
 APP_VERSION="0.2.7" # TODO: get this one from env var
-
+OPERATOR_VERSION="0.0.6"
 # Go build flags
-LDFLAGS=-ldflags "-X main.Version=${APP_VERSION}"
+LDFLAGS=-ldflags "-X main.Version=${APP_VERSION} -X main.OperatorVersion=${OPERATOR_VERSION}"
 
 default-cli:
 	go build ${LDFLAGS} -o ${DIR}/${BINARY} ${ROOT_DIR}/cmd/cli

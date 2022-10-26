@@ -16,6 +16,7 @@ import (
 
 var globalUsage = ``
 var Version = "0.0.0"
+var OperatorVersion = "0.0.0"
 
 func init() {
 	// quiet version
@@ -91,7 +92,7 @@ func NewInstallKubeTunnelCmd() *cobra.Command {
 		Example: fmt.Sprintf("  %s install --help\n", constants.KubetunnelSlug) +
 			fmt.Sprintf("  %s install\n", constants.KubetunnelSlug) +
 			fmt.Sprintf("  %s install -c kubeconfig/path\n", constants.KubetunnelSlug) +
-			fmt.Sprintf("  %s install -c kubeconfig/path --operator-version 1.2.3\n", constants.KubetunnelSlug),
+			fmt.Sprintf("  %s install -c kubeconfig/path --operator-version %s\n", constants.KubetunnelSlug, OperatorVersion),
 
 		// TODO: Consider change to RunE and modify all panic to return error
 		Run: func(cmd *cobra.Command, args []string) {
@@ -103,7 +104,7 @@ func NewInstallKubeTunnelCmd() *cobra.Command {
 	}
 
 	svcCmd.Flags().StringVarP(&kubeConfig, "kubeconfig", "c", "", "absolute path to a kubectl config file.")
-	svcCmd.Flags().StringVar(&kubetunnelVersion, "operator-version", Version, fmt.Sprintf("%s's Operator chart version.", constants.KubeTunnelKind))
+	svcCmd.Flags().StringVar(&kubetunnelVersion, "operator-version", OperatorVersion, fmt.Sprintf("%s's Operator chart version.", constants.KubeTunnelKind))
 	svcCmd.Flags().StringVarP(&namespace, "namespace", "n", constants.KubetunnelSlug, "operator's namespace")
 
 	return svcCmd
