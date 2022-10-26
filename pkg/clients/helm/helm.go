@@ -90,7 +90,7 @@ func installWithNamespace(c *Helm, chartName string, chartVersion string, releas
 		Version:         chartVersion,
 		Namespace:       namespace,
 		CreateNamespace: true,
-		UpgradeCRDs:     false,
+		UpgradeCRDs:     true,
 		Wait:            true,
 		Replace:         false,
 		ValuesYaml:      string(valuesYaml),
