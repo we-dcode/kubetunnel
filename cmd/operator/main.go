@@ -22,6 +22,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 	"github.com/we-dcode/kube-tunnel/pkg/clients/kube"
 	"github.com/we-dcode/kube-tunnel/pkg/constants"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -226,11 +227,11 @@ func patchServiceWithLabel(k *kube.Kube, serviceName string, connected bool) err
 
 	svcContext, err := k.GetServiceContext(serviceName)
 	if err != nil {
-		fmt.Printf("fail to get service: '%s' context, error: %s", serviceName, err.Error())
+		log.Errorf("fail to get service: '%s' context, error: %s", serviceName, err.Error())
 	}
 
 	clientSet := k.InnerKubeClient
-	fmt.Printf(k.Namespace)
+	log.Debugf(k.Namespace)
 	ctx := context.TODO()
 
 	slugPrefix := fmt.Sprintf("%s-", constants.KubetunnelSlug)
@@ -239,7 +240,7 @@ func patchServiceWithLabel(k *kube.Kube, serviceName string, connected bool) err
 
 	if !connected {
 
-		fmt.Printf("removing true from %v\n", serviceName)
+		log.Debugf("removing true from %v\n", serviceName)
 		var payload []kube.PatchOperation
 
 		for key, valueWithSlug := range svcContext.LabelSelector {
@@ -258,7 +259,7 @@ func patchServiceWithLabel(k *kube.Kube, serviceName string, connected bool) err
 			payload = append(payload, kube.PatchOperation{
 
 				Op:    "replace",
-				Path:  fmt.Sprintf("/spec/selector/%s", strings.ReplaceAll(key, "/", "~1")),
+				Path:  fmt.Sprintf("/spec/selector/%s", key),
 				Value: valueWithoutSlug,
 			})
 		}
@@ -273,7 +274,7 @@ func patchServiceWithLabel(k *kube.Kube, serviceName string, connected bool) err
 		}
 
 	} else {
-		fmt.Printf("adding true to %v\n", serviceName)
+		log.Debugf("adding true to %v\n", serviceName)
 
 		var payload []kube.PatchOperation
 
@@ -294,25 +295,22 @@ func patchServiceWithLabel(k *kube.Kube, serviceName string, connected bool) err
 			payload = append(payload, kube.PatchOperation{
 
 				Op:    "replace",
-				Path:  fmt.Sprintf("/spec/selector/%s", strings.ReplaceAll(key, "/", "~1")),
+				Path:  fmt.Sprintf("/spec/selector/%s", key),
 				Value: valueWithSlug,
 			})
-
 		}
 		if len(payload) > 0 {
-			fmt.Printf("Payload: %s", payload)
 			payloadBytes, _ := json.Marshal(payload)
 			_, err := clientSet.
 				CoreV1().
 				Services(k.Namespace).
 				Patch(ctx, serviceName, types.JSONPatchType, payloadBytes, metav1.PatchOptions{})
 			return err
-		} else {
-			fmt.Printf("Payload is empty")
 		}
 	}
 
 	return nil
+
 }
 
 func getEnvVar(variable string) string {
