@@ -9,6 +9,8 @@ func TestRunningKubeTunnelE2E2(t *testing.T) {
 
 	kubeTunnel := pkg.MustNewKubeTunnel("/Users/maordavidov/dcode/gitlab-cicd-kubeconfig.yaml", "kubetunnel")
 
+	kubeTunnel.Install("0.0.6")
+
 	kubeTunnel.CreateTunnel(pkg.KubeTunnelConf{
 		ServiceName: "nginx",
 		LocalIP:     "localhost",

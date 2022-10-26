@@ -14,20 +14,20 @@ default-cli:
 
 # Compile CLI - Windows x64
 windows-cli:
-	$(shell mkdir -p ${DIR}/windows)
+	mkdir -p ${DIR}/windows
 	GOOS=windows GOARCH=amd64 go build ${LDFLAGS} -o ${DIR}/windows/${BINARY}.exe ${ROOT_DIR}/cmd/cli
 	#$(shell zip ${DIR}/${BINARY}-win.zip ${DIR}/windows/*)
 # Compile CLI - Linux x64
 linux-cli:
-	$(shell mkdir -p ${DIR}/linux)
+	mkdir -p ${DIR}/linux
 	GOOS=linux GOARCH=amd64 go build ${LDFLAGS} -o ${DIR}/linux/${BINARY} ${ROOT_DIR}/cmd/cli
 	#$(shell zip ${DIR}/${BINARY}-linux.zip ${DIR}/linux/*)
 
 # Compile CLI - Darwin x64
 darwin-cli:
-	$(shell mkdir -p ${DIR}/mac)
+	mkdir -p ${DIR}/mac
 	GOOS=darwin GOARCH=amd64 go build ${LDFLAGS} -o ${DIR}/mac/${BINARY} ${ROOT_DIR}/cmd/cli
-	#$(shell zip ${DIR}/${BINARY}-mac.zip ${DIR}/mac/*)
+	zip ${DIR}/${BINARY}-mac.zip ${DIR}/mac/*
 
 all-cli: darwin-cli linux-cli windows-cli
 

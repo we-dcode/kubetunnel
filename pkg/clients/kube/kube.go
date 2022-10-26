@@ -134,6 +134,7 @@ func (k *Kube) PortForward(serviceName string, port string) (listeningPort int, 
 }
 
 func (k *Kube) CreateKubeTunnelResource(resourceSpec models.KubeTunnelResourceSpec) error {
+	var body []byte
 
 	resource := models.KubeTunnelResource{
 		TypeMeta: v1.TypeMeta{
@@ -146,17 +147,43 @@ func (k *Kube) CreateKubeTunnelResource(resourceSpec models.KubeTunnelResourceSp
 		Spec: resourceSpec,
 	}
 
-	body, err := json.Marshal(resource)
-
-	if err != nil {
-		return err
-	}
+	url := fmt.Sprintf("/apis/%s/namespaces/%s/%ss", constants.KubeTunnelApiVersion, k.Namespace, constants.KubetunnelSlug)
 
 	data, err := k.InnerKubeClient.RESTClient().
-		Post().
-		AbsPath(fmt.Sprintf("/apis/%s/namespaces/%s/%ss", constants.KubeTunnelApiVersion, k.Namespace, constants.KubetunnelSlug)).
-		Body(body).
+		Get().
+		AbsPath(fmt.Sprintf("%s/%s", url, resource.Metadata.Name)).
 		DoRaw(context.TODO())
+
+	if err != nil {
+
+		if body, err = json.Marshal(resource); err != nil {
+			return err
+		}
+
+		data, err = k.InnerKubeClient.RESTClient().
+			Post().
+			AbsPath(url).
+			Body(body).
+			DoRaw(context.TODO())
+	} else {
+
+		var oldResource models.KubeTunnelResource
+		if err = json.Unmarshal(data, &oldResource); err != nil {
+			return fmt.Errorf("unable to update existing CRD. please manually delete kubetunnel: %s and run again", resource.Metadata.Name)
+		}
+
+		resource.Metadata.ResourceVersion = oldResource.Metadata.ResourceVersion
+
+		if body, err = json.Marshal(resource); err != nil {
+			return err
+		}
+
+		data, err = k.InnerKubeClient.RESTClient().
+			Put().
+			AbsPath(fmt.Sprintf("%s/%s", url, resource.Metadata.Name)).
+			Body(body).
+			DoRaw(context.TODO())
+	}
 
 	log.Debug(string(data))
 	return err

@@ -13,7 +13,7 @@ func TestInstallingOperator(t *testing.T) {
 
 	helmClient := helm.MustNew(client)
 
-	err := helmClient.InstallKubeTunnelOperator("0.0.4")
+	err := helmClient.InstallKubeTunnelOperator("0.0.6")
 
 	assert.NoError(t, err)
 }

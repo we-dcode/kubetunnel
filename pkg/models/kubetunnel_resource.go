@@ -37,6 +37,19 @@ func (p Ports) MarshalYAML() (interface{}, error) {
 	return fmt.Sprintf("\"%s\"", p.String()), nil
 }
 
+func (p *Ports) UnmarshalJSON(b []byte) error {
+
+	s := string(b)
+
+	values := strings.Split(s, ",")
+
+	for _, value := range values {
+		p.Values = append(p.Values, strings.Trim(value, "\""))
+	}
+
+	return nil
+}
+
 func (p Ports) MarshalJSON() ([]byte, error) {
 	return []byte(fmt.Sprintf("\"%s\"", p.String())), nil
 }
