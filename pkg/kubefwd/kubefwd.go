@@ -272,7 +272,7 @@ func AddServiceHandler(opts *services.NamespaceOpts, obj interface{}) {
 		PodLabelSelector:         stringSelector,
 		NamespaceServiceLock:     opts.NamespaceIPLock,
 		Svc:                      svc,
-		Headless:                 svc.Spec.ClusterIP == "None",
+		Headless:                 svc.Spec.ClumsterIP == "None",
 		PortForwards:             make(map[string]*fwdport.PortForwardOpts),
 		SyncDebouncer:            debounce.New(5 * time.Second),
 		DoneChannel:              make(chan struct{}),
