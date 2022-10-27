@@ -60,6 +60,9 @@ jobs:
           # Custom install command for your formula.
           # Required - string.
           install: 'bin.install "src/my-script.sh" => "my-script"'
+          target_darwin_amd64: true
+          target_linux_amd64: true
+
 
           # Update your homebrew tap's README with a table of all projects in the tap.
           # This is done by pulling the information from all your formula.rb files - eg:
