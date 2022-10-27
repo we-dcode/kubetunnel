@@ -25,13 +25,13 @@ Slack: [Discuss](https://we-dcode.slack.com/archives/C047WAUR41M)
 ---
 
 ## How It Works
-When you select a service and a local process to tunnel, Kubetunnel launches a pod on your namespace, and changes the service to move all traffic to this pod. This pod forwards all traffic to your local proccess through a tunnel. The CLI then forwards all your Kubernetes services in your namespace to localhost.
+When you select a service and a local process to tunnel, Kubetunnel launches a pod on your namespace, and changes the service to move all traffic to this pod. This pod forwards all traffic to your local proccess through a secured tunnel. The CLI then forwards all your Kubernetes services in your namespace to localhost.
 This creates a two way connection between your local process and the cluster meaning:
 
 * All other pods now connect to your local process instead of the original pod in the cluster.
 * You are able to connect to other services in the namespace from the local process.
 
-* You can read more about it [here](https/dcode.tech).
+You can read more about it [here](https/dcode.tech).
 <p align="center">
   <img src="./images/how_it_works.svg" alt="How It Works"/>
 </p>
