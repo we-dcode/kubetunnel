@@ -49,7 +49,7 @@ Kubetunnel CLI can be installed through multiple channels.
 Install Kubetunnel CLI from [Kubetunnel tap](https://github.com/kubetunnel/homebrew-tap) with [Homebrew](https://brew.sh) by running:
 
 ```bash
-brew tap kubetunnel/tap
+brew tap we-dcode/tap
 brew install kubetunnel
 ```
 
