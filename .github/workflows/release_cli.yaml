@@ -40,7 +40,7 @@ jobs:
 
           # The name of the folder in your homebrew tap where formula will be committed to.
           # Default is shown - string.
-          formula_folder: kubetunnel
+          formula_folder: formula
 
           # The GitHub Token (saved as a repo secret) that has `repo` permissions for the homebrew tap you want to release to.
           # Required - string.
@@ -57,9 +57,6 @@ jobs:
           #            "bash" => :build
           #            "gcc"
 
-          # Custom install command for your formula.
-          # Required - string.
-          install: 'bin.install "src/my-script.sh" => "my-script"'
           target_darwin_amd64: true
           target_linux_amd64: true
 
