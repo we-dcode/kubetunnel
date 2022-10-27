@@ -27,6 +27,7 @@ jobs:
         goarch: amd64
   homebrew-releaser:
     runs-on: ubuntu-latest
+    needs: [release-linux-amd64, release-darwin-amd64]
     name: homebrew-releaser
     steps:
       - name: Release my project to my Homebrew tap
