@@ -84,7 +84,7 @@ func installWithNamespace(c *Helm, chartName string, chartVersion string, releas
 
 	chartSpec := helmclient.ChartSpec{
 		ReleaseName:     releaseName,
-		Recreate:        false,
+		Recreate:        replace,
 		ChartName:       chartName,
 		Atomic:          true,
 		Version:         chartVersion,
