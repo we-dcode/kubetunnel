@@ -34,7 +34,7 @@ func init() {
 
 func main() {
 
-	log.SetLevel(log.PanicLevel)
+	log.SetLevel(log.InfoLevel)
 	log.SetFormatter(&log.TextFormatter{
 		FullTimestamp:   true,
 		ForceColors:     true,
