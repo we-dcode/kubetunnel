@@ -22,13 +22,11 @@ windows-cli:
 linux-cli:
 	mkdir -p ${DIR}/linux
 	GOOS=linux GOARCH=amd64 go build ${LDFLAGS} -o ${BINARY} ${ROOT_DIR}/cmd/cli
-	zip ${DIR}/${BINARY}-linux.zip ${DIR}/linux/*
 
 # Compile CLI - Darwin x64
 darwin-cli:
 	mkdir -p ${DIR}/mac
 	GOOS=darwin GOARCH=amd64 go build ${LDFLAGS} -o ${BINARY} ${ROOT_DIR}/cmd/cli
-	zip ${DIR}/${BINARY}-mac.zip ${DIR}/mac/*
 
 all-cli: darwin-cli linux-cli windows-cli
 
