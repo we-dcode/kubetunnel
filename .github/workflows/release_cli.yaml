@@ -57,6 +57,9 @@ jobs:
           #            "bash" => :build
           #            "gcc"
 
+          # Custom install command for your formula.
+          # Required - string.
+          install: 'bin.install "src/my-script.sh" => "my-script"'
           target_darwin_amd64: true
           target_linux_amd64: true
 
