@@ -5,6 +5,7 @@ metadata:
   labels:
     {{- include "kubetunnel.labels" . | nindent 4 }}
     kubetunnel-app: {{  .Values.env_service_name }}
+    kubetunnel: app
     {{- range $key, $val := .Values.pod_labels }}
     {{ $key }}: {{ $val | quote }}
     {{- end}}
@@ -15,6 +16,7 @@ spec:
   selector:
     matchLabels:
       kubetunnel-app: {{  .Values.env_service_name }}
+      kubetunnel: app
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -24,6 +26,7 @@ spec:
       labels:
         {{- include "kubetunnel.labels" . | nindent 8 }}
         kubetunnel-app: {{  .Values.env_service_name }}
+        kubetunnel: app
         meta.helm.sh/release-name:  {{ .Release.Name }}
         {{- range $key, $val := .Values.pod_labels }}
         {{ $key }}: {{ $val | quote }}
