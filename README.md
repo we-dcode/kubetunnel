@@ -1,6 +1,6 @@
-
- ![KubeTunnel Logo](https://via.placeholder.com/150)
-
+<p align="center">
+  <img height="100" src="https://via.placeholder.com/150">
+</p>
 
 # KubeTunnel
 
