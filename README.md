@@ -50,7 +50,7 @@ brew install kubetunnel
 
 ### Windows
 
-Download the latest CLI binary - https://github.com/we-dcode/kubetunnel/releases
+Download the latest CLI binary in our [releases page](https://github.com/we-dcode/kubetunnel/releases/latest)
 
 
 # Getting started with Kubetunnel CLI
@@ -97,10 +97,6 @@ kubetunnel completion --help
 
 See all the available commands and options by running:
 
-```bash
-kubetunnel --help
-```
-
 # Getting support
 
 If you need support using KubeTunnel CLI, please [join our Slack channel](https://we-dcode.slack.com/archives/C047WAUR41M).
@@ -108,6 +104,7 @@ If you need support using KubeTunnel CLI, please [join our Slack channel](https:
 We do not actively monitor GitHub Issues so any issues there may go unnoticed.
 
 # Known Limitations
+
 * The current KubeTunnel version can only tunnel a single service per workstation. In the future, we will add support for multiple services.
 
 # Contributing
