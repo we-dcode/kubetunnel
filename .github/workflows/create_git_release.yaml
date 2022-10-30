@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [darwin-amd64,darwin-arm64,windows,linux-amd64]
+        os: [darwin-amd64,darwin-arm64,windows-amd64,linux-amd64]
     steps:
       - uses: actions/checkout@v3
       - uses: wangyoucao577/go-release-action@v1.32
