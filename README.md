@@ -30,7 +30,7 @@ This creates a two way connection between your local process and the cluster mea
 * All other pods now connect to your local process instead of the original pod in the cluster.
 * You are able to connect to other services in the namespace from your local process.
 
-You can read more about it [here](docs/architecture.md).
+You can read more about it [here](docs/Architecture.md).
 <p align="center">
   <img src="./images/how_it_works.svg" alt="How It Works"/>
 </p>
