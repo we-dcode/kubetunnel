@@ -84,16 +84,18 @@ At this point, the KubeTunnel Kubernetes Operator is successfully installed. Onc
   sudo -E kubetunnel create-tunnel -p '8080:80' svc_name
 ```
 
-This command waits for the local process to be available with the process you want to tunnel. When the process is up, it is tunneled to cluster and the application service is switched to forward traffic to it.
+This command waits for the local process to be available with the process you want to tunnel. When the process is up, it is tunneled to cluster and the application service is switched to forward traffic to it. If your local process becomes unavailable, the service is switched back to the original pod.
 
 ##  Autocomplete with Kubetunnel CLI
 
+KubeTunnel supports completion for multiple shells.  
+For autocomplete for your shell run the following command:
 
 ```bash
-kubetunnel completion <zsh/bash/fish/powershell> >> <>
+kubetunnel completion --help
 ```
 
-[See all the available commands and options](./help/cli-commands) by running `--help`:
+See all the available commands and options by running:
 
 ```bash
 kubetunnel --help
@@ -105,13 +107,13 @@ If you need support using KubeTunnel CLI, please [join our Slack channel](https:
 
 We do not actively monitor GitHub Issues so any issues there may go unnoticed.
 
+# Known Limitations
+* The current KubeTunnel version can only tunnel a single service per workstation. In the future, we will add support for multiple services.
+
 # Contributing
 
 If you are an external contributor, before working on any contributions, please first [contact us](https://dcode.tech) to discuss the issue or feature request with us.
 
-If you are contributing to KubeTunnel CLI, see [our contributing guidelines](CONTRIBUTING.md)
-
-For information on how KubeTunnel CLI is implemented, see [our design decisions](help/_about-this-project/README.md).
 
 ---
 
