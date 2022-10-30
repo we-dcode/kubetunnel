@@ -1,10 +1,11 @@
+
+
 <p align="center">
-  <img height="100" src="https://via.placeholder.com/150">
+<img src="./assets/logo.svg" width="300"><br>
+  by <a href="https://dcode.tech">Dcode</a>
 </p>
 
-# KubeTunnel
-
-[KubeTunnel](https://dcode.tech/) helps you develop microservices locally while being connected to your Kubernetes environment.
+# KubeTunnel: Develop locally while being connected to Kubernetes.
 
 ![Large GIF of Kubetunnel example](https://aaa) <br><br><br>
 Website: [https://www.dcode.tech/](https://www.dcode.tech)  
@@ -13,7 +14,7 @@ Slack: [Discuss](https://we-dcode.slack.com/archives/C047WAUR41M)
 **With KubeTunnel:**
 
 * You run one service locally using your favorite IDE
-* You run the rest of your application in Kubernetes, not limited to resources and compute power.
+* You run the rest of your microservices in Kubernetes, not limited to resources and compute power.
 
 **This gives developers:**
 
@@ -41,12 +42,16 @@ Kubetunnel CLI can be installed through multiple channels.
 
 ### Linux/Mac
 
-Install Kubetunnel CLI from [Kubetunnel tap](https://github.com/kubetunnel/homebrew-tap) with [Homebrew](https://brew.sh) by running:
+There are 2 methods to install the CLI on Linux/Mac.
+
+1. Install Kubetunnel CLI from [Kubetunnel tap](https://github.com/kubetunnel/homebrew-tap) with [Homebrew](https://brew.sh) by running:
 
 ```bash
 brew tap we-dcode/tap
 brew install kubetunnel
 ```
+
+2. Download the KubeTunnel CLI with the latest binary in our [releases page](https://github.com/we-dcode/kubetunnel/releases/latest). 
 
 ### Windows
 
@@ -101,7 +106,7 @@ See all the available commands and options by running:
 
 If you need support using KubeTunnel CLI, please [join our Slack channel](https://we-dcode.slack.com/archives/C047WAUR41M).
 
-We do not actively monitor GitHub Issues so any issues there may go unnoticed.
+Please leave issues for any error or bug that you encounter.
 
 # Known Limitations
 
@@ -110,7 +115,6 @@ We do not actively monitor GitHub Issues so any issues there may go unnoticed.
 # Contributing
 
 If you are an external contributor, before working on any contributions, please first [contact us](https://dcode.tech) to discuss the issue or feature request with us.
-
 
 ---
 
