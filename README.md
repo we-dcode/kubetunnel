@@ -1,6 +1,6 @@
 
 <p align="center">
-  Large Kubetunnel Logo centered
+ <a href="https://placeholder.com"><img src="https://via.placeholder.com/150"></a>
 </p>
 
 # KubeTunnel
