@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="419a17e1-0d86-4356-994d-a8ab85c81401" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/pkg/operator/helm-charts/kubetunnel/templates/deployment.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/operator/helm-charts/kubetunnel/templates/deployment.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/operator/helm-charts/kubetunnel/values.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/operator/helm-charts/kubetunnel/values.yaml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" url="file://$USER_HOME$/go" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2FdAn9atBw565TakZ1whexbJ1yy" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.format.on.save.advertiser.fired&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;configurable..is.expanded&quot;: &quot;false&quot;,
+    &quot;configurable.GoLibrariesConfigurable.is.expanded&quot;: &quot;true&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/eliranwolff/work/kube-tunnel&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;go.sdk&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/" />
+      <recent name="$PROJECT_DIR$/cmd/operator" />
+      <recent name="$PROJECT_DIR$/pkg" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Go Build.go build kubetunnel-server.go">
+    <configuration name="go build /Users/eliranwolff/work/kube-tunnel/cmd/server" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="kube-tunnel" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="$PROJECT_DIR$/cmd/server" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/cmd/server/kubetunnel-server.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build kubetunnel-server.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="kube-tunnel" />
+      <working_directory value="$PROJECT_DIR$" />
+      <envs>
+        <env name="PORTS" value="8080" />
+        <env name="SERVICE_NAME" value="nginx" />
+        <env name="OPERATOR_SVC_NAME" value="operator" />
+        <env name="OPERATOR_NAMESPACE" value="operator-system" />
+        <env name="OPERATOR_PORT" value="8080" />
+      </envs>
+      <kind value="FILE" />
+      <package value="$PROJECT_DIR$/cmd/server/" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/cmd/server/kubetunnel-server.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build kubetunnel-server.goa" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" show_console_on_std_err="true" show_console_on_std_out="true">
+      <module name="kube-tunnel" />
+      <working_directory value="$PROJECT_DIR$/backend/kube-tunnel" />
+      <envs>
+        <env name="PORTS" value="8080,8081" />
+        <env name="SERVICE_NAME" value="nginx" />
+      </envs>
+      <kind value="FILE" />
+      <package value="github.com/we-dcode/kube-tunnel/cmd" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/backend/kube-tunnel/cmd/kubetunnel-server.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestPatchServiceWithLabel in github.com/we-dcode/kube-tunnel/cmd/operator" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="kube-tunnel" />
+      <working_directory value="$PROJECT_DIR$/cmd/operator" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/we-dcode/kube-tunnel/cmd/operator" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestPatchServiceWithLabel\E$" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Go Build.go build kubetunnel-server.go" />
+      <item itemvalue="Go Build.go build /Users/eliranwolff/work/kube-tunnel/cmd/server" />
+      <item itemvalue="Go Build.go build kubetunnel-server.goa" />
+      <item itemvalue="Go Test.TestPatchServiceWithLabel in github.com/we-dcode/kube-tunnel/cmd/operator" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build kubetunnel-server.go" />
+        <item itemvalue="Go Test.TestPatchServiceWithLabel in github.com/we-dcode/kube-tunnel/cmd/operator" />
+        <item itemvalue="Go Build.go build kubetunnel-server.goa" />
+        <item itemvalue="Go Build.go build /Users/eliranwolff/work/kube-tunnel/cmd/server" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VgoProject">
+    <settings-migrated>true</settings-migrated>
+  </component>
+</project>
