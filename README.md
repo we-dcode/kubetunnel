@@ -60,7 +60,7 @@ Things to consider before you start:
 * For this quickstart guide, your Kubernetes cluster is assumed to be already up and running. Before you proceed with the KubeTunnel installation, make sure you check the supported versions.
 * Make sure your user has `cluster-admin` permissions for the initial installation of the operator component. For the tunnels themselves, this is not needed.
 * The operator needs network access to each tunnel. If your namespaces deny ingress and egress traffic, please create NetworkPolicies to enable traffic between them as explained [here](docs/Network.md).
-* You will need local administrator privileges to create each tunnel as the KubeTunnel client modifies the local `/etc/hosts` file to include the cluster services.
+* You will need local administrator privileges to create each tunnel as the KubeTunnel client modifies the local hosts file to include the cluster services.
 
 Once you installed the KubeTunnel CLI, you can verify it's working by running:
 
