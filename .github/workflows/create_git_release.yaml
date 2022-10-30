@@ -15,7 +15,7 @@ jobs:
       - uses: ncipollo/release-action@v1.11.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          name: ${{ GITHUB_REF_NAME }}
+          name: ${{ secrets.GITHUB_REF_NAME }}
   releases-matrix:
     needs: [create-release]
     name: Release Go Binary
@@ -30,7 +30,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           build_command: make {{ matrix.os }}
           binary_name: "kubetunnel"
-          release_tag: ${{ GITHUB_REF_NAME }}
+          release_tag: ${{ secrets.GITHUB_REF_NAME }}
   homebrew-releaser:
     runs-on: ubuntu-latest
     needs: [release-linux-amd64, release-darwin-amd64]
