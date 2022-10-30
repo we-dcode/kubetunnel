@@ -1,30 +1,36 @@
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - 'kubetunnel-cli-*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+name: Create Release
 
 jobs:
-  release-linux-amd64:
-    name: release linux/amd64
+  create-release:
+    name: Create Release
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: wangyoucao577/go-release-action@v1.32
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        build_command: make linux-cli
-        goos: linux
-        goarch: amd64
-  release-darwin-amd64:
-    name: release darwin/amd64
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: ncipollo/release-action@v1.11.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ GITHUB_REF_NAME }}
+  releases-matrix:
+    needs: [create-release]
+    name: Release Go Binary
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [darwin-amd,darwin-arm,windows,linux]
     steps:
-    - uses: actions/checkout@v3
-    - uses: wangyoucao577/go-release-action@v1.32
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        build_command: make darwin-cli
-        goos: darwin
-        goarch: amd64
+      - uses: actions/checkout@v3
+      - uses: wangyoucao577/go-release-action@v1.32
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          build_command: make {{ matrix.os }}
+          binary_name: "kubetunnel"
+          release_tag: 
   homebrew-releaser:
     runs-on: ubuntu-latest
     needs: [release-linux-amd64, release-darwin-amd64]
@@ -59,8 +65,9 @@ jobs:
 
           # Custom install command for your formula.
           # Required - string.
-          install: 'bin.install "src/my-script.sh" => "my-script"'
+          install: 'bin.install "kubetunnel"'
           target_darwin_amd64: true
+          target_darwin_arm64: true
           target_linux_amd64: true
 
 

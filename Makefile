@@ -24,7 +24,11 @@ linux-cli:
 	GOOS=linux GOARCH=amd64 go build ${LDFLAGS} -o ${BINARY} ${ROOT_DIR}/cmd/cli
 
 # Compile CLI - Darwin x64
-darwin-cli:
+darwin-arm-cli:
+	mkdir -p ${DIR}/mac
+	GOOS=darwin GOARCH=arm64 go build ${LDFLAGS} -o ${BINARY} ${ROOT_DIR}/cmd/cli
+
+darwin-amd-cli:
 	mkdir -p ${DIR}/mac
 	GOOS=darwin GOARCH=amd64 go build ${LDFLAGS} -o ${BINARY} ${ROOT_DIR}/cmd/cli
 
