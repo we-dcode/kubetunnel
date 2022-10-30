@@ -68,25 +68,23 @@ Once you installed the KubeTunnel CLI, you can verify it's working by running:
 kubetunnel --help
 ```
 
-To install the operator and CRD, run the following command:
+For each of the following commands, you can run --help for more options.
+
+
+1. To install the operator and CRD, run the following command:
 
 ```bash
 kubetunnel install 
 ```
 At this point, the KubeTunnel Kubernetes Operator is successfully installed. Once the KubeTunnel Operator pod is running, you are able to start tunneling processes to your cluster. 
 
-For each service to tunnel you want to create, run the following command:
+2. For each service you want to tunnel, run the following command:
 
 ```bash
   sudo -E kubetunnel create-tunnel -p '8080:80' svc_name
 ```
 
-This command does the following things:
-1. Create a KubeTunnel custom resource in the cluster which creates kubetunnel server in the cluster.
-2. Starts a local frp client to connect to the kubetunnel server with your wanted process on the given local port.
-3. Forwards all the namespace services to your localhost and adds their DNS to your `/etc/hosts` file.
-4. Starts forwarding traffic to your local process by changing the Kubernetes service to forward to the new frp server pod instead of the app.
-
+This command waits for the local process to be available with the process you want to tunnel. When the process is up, it is tunneled to cluster and the application service is switched to forward traffic to it.
 
 ##  Autocomplete with Kubetunnel CLI
 
