@@ -30,7 +30,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           build_command: make {{ matrix.os }}
           binary_name: "kubetunnel"
-          release_tag: 
+          release_tag: ${{ GITHUB_REF_NAME }}
   homebrew-releaser:
     runs-on: ubuntu-latest
     needs: [release-linux-amd64, release-darwin-amd64]
