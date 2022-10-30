@@ -28,7 +28,7 @@ jobs:
       - uses: wangyoucao577/go-release-action@v1.32
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          build_command: make {{ matrix.os }}
+          build_command: make ${{ matrix.os }}
           binary_name: "kubetunnel"
           release_tag: ${{ secrets.GITHUB_REF_NAME }}
   homebrew-releaser:
