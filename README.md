@@ -24,26 +24,22 @@ Slack: [Discuss](https://we-dcode.slack.com/archives/C047WAUR41M)
 ---
 
 ## How It Works
-When you select a service and a local process to tunnel, Kubetunnel launches a pod on your namespace, and changes the service to move all traffic to this pod. This pod forwards all traffic to your local proccess through a secured tunnel. The CLI then forwards all your Kubernetes services in your namespace to localhost.
+When you select a service and a local process to tunnel, Kubetunnel launches a pod on your namespace, and changes the service to move all traffic to this pod. This pod forwards all traffic to your local proccess through a secured tunnel. The CLI then forwards all your Kubernetes services in your namespace to localhost. 
 This creates a two way connection between your local process and the cluster meaning:
 
 * All other pods now connect to your local process instead of the original pod in the cluster.
-* You are able to connect to other services in the namespace from the local process.
+* You are able to connect to other services in the namespace from your local process.
 
-You can read more about it [here](https/dcode.tech).
+You can read more about it [here](docs/architecture.md).
 <p align="center">
   <img src="./images/how_it_works.svg" alt="How It Works"/>
 </p>
 
 ---
 
-## Quick Start
-
-A few quick ways to start using KubeTunnel
-
 Kubetunnel CLI can be installed through multiple channels.
 
-## Install with Homebrew
+### Install on Linux/Mac
 
 Install Kubetunnel CLI from [Kubetunnel tap](https://github.com/kubetunnel/homebrew-tap) with [Homebrew](https://brew.sh) by running:
 
@@ -52,13 +48,19 @@ brew tap we-dcode/tap
 brew install kubetunnel
 ```
 
-## Install with apt
+### Install on Windows
 
-```bash
-apt install kubetunnel
-```
+Download the latest CLI binary - https://github.com/we-dcode/kubetunnel/releases
+
 
 # Getting started with Kubetunnel CLI
+
+Things to consider before you start:
+
+* For this quickstart guide, your Kubernetes cluster is assumed to be already up and running. Before you proceed with the KubeTunnel installation, make sure you check the supported versions.
+* Make sure your user has `cluster-admin` permissions for the initial installation of the operator component. For the tunnels themselves, this is not needed.
+* The operator needs network access to each tunnel. If your namespaces deny ingress and egress traffic, please create NetworkPolicies to enable traffic between them as explained here.
+* You will need local administrator privileges to create each tunnel as the KubeTunnel client modifies the local `/etc/hosts` file to include the cluster services.
 
 Once you installed the KubeTunnel CLI, you can verify it's working by running:
 
@@ -66,28 +68,32 @@ Once you installed the KubeTunnel CLI, you can verify it's working by running:
 kubetunnel --help
 ```
 
-## Doing XX with Kubetunnel CLI
+To install the operator and CRD, run the following command:
+
+```bash
+kubetunnel install 
+```
+At this point, the KubeTunnel Kubernetes Operator is successfully installed. Once the KubeTunnel Operator pod is running, you are able to start tunneling processes to your cluster. 
+
+For each service to tunnel you want to create, run the following command:
+
+```bash
+  sudo -E kubetunnel create-tunnel -p '8080:80' svc_name
+```
+
+This command does the following things:
+1. Create a KubeTunnel custom resource in the cluster which creates kubetunnel server in the cluster.
+2. Starts a local frp client to connect to the kubetunnel server with your wanted process on the given local port.
+3. Forwards all the namespace services to your localhost and adds their DNS to your `/etc/hosts` file.
+4. Starts forwarding traffic to your local process by changing the Kubernetes service to forward to the new frp server pod instead of the app.
+
+
+##  Autocomplete with Kubetunnel CLI
 
 
 ```bash
-kubetunnel whatever
+kubetunnel completion <zsh/bash/fish/powershell> >> <>
 ```
-
-## More flags and options to try
-
-Here are some flags that you might find useful:
-
-- `--severity-threshold=low|medium|high|critical`
-
-  Only report vulnerabilities of provided level or higher.
-
-- `--json`
-
-  Prints results in JSON format.
-
-- `--all-projects`
-
-  Auto-detect all projects in working directory
 
 [See all the available commands and options](./help/cli-commands) by running `--help`:
 
