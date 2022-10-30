@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [darwin-amd,darwin-arm,windows,linux]
+        os: [darwin-amd64,darwin-arm64,windows,linux-amd64]
     steps:
       - uses: actions/checkout@v3
       - uses: wangyoucao577/go-release-action@v1.32
@@ -30,7 +30,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           build_command: make ${{ matrix.os }}-cli
           binary_name: kubetunnel
-          asset_name: kubetunnel-${{ matrix.os }}
+          asset_name: kubetunnel-${{ secrets.GITHUB_REF_NAME }}-${{ matrix.os }}
           release_tag: ${{ secrets.GITHUB_REF_NAME }}
   homebrew-releaser:
     runs-on: ubuntu-latest
@@ -67,6 +67,14 @@ jobs:
           # Custom install command for your formula.
           # Required - string.
           install: 'bin.install "kubetunnel"'
+
+          # Adds URL and checksum targets for different OS and architecture pairs. Using this option assumes 
+          # a tar archive exists on your GitHub repo with the following URL pattern (this cannot be customized):
+          # https://github.com/{GITHUB_OWNER}/{REPO_NAME}/releases/download/{TAG}/{REPO_NAME}-{VERSION}-{OPERATING_SYSTEM}-{ARCHITECTURE}.tar.gz'
+          # Darwin AMD pre-existing path example: https://github.com/justintime50/myrepo/releases/download/v1.2.0/myrepo-1.2.0-darwin-amd64.tar.gz
+          # Linux ARM pre-existing path example: https://github.com/justintime50/myrepo/releases/download/v1.2.0/myrepo-1.2.0-linux-arm64.tar.gz
+          # Optional - booleans.
+
           target_darwin_amd64: true
           target_darwin_arm64: true
           target_linux_amd64: true

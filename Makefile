@@ -14,20 +14,22 @@ default-cli:
 	go build ${LDFLAGS} -o ${DIR}/${BINARY} ${ROOT_DIR}/cmd/cli
 
 # Compile CLI - Windows x64
-windows-cli:
+windows-amd64-cli:
 	mkdir -p ${DIR}/windows
 	GOOS=windows GOARCH=amd64 go build ${LDFLAGS} -o ${BINARY} ${ROOT_DIR}/cmd/cli
+
 # Compile CLI - Linux x64
-linux-cli:
+linux-amd64-cli:
 	mkdir -p ${DIR}/linux
 	GOOS=linux GOARCH=amd64 go build ${LDFLAGS} -o ${BINARY} ${ROOT_DIR}/cmd/cli
 
-# Compile CLI - Darwin x64
-darwin-arm-cli:
+# Compile CLI - Darwin arm x64
+darwin-arm64-cli:
 	mkdir -p ${DIR}/mac
 	GOOS=darwin GOARCH=arm64 go build ${LDFLAGS} -o ${BINARY} ${ROOT_DIR}/cmd/cli
 
-darwin-amd-cli:
+# Compile CLI - Darwin amd x64
+darwin-amd64-cli:
 	mkdir -p ${DIR}/mac
 	GOOS=darwin GOARCH=amd64 go build ${LDFLAGS} -o ${BINARY} ${ROOT_DIR}/cmd/cli
 
