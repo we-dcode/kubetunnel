@@ -30,7 +30,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           build_command: make ${{ matrix.os }}-cli
           binary_name: kubetunnel
-          asset_name: kubetunnel-${{ matrix.goos }}-${{ matrix.goarch }}
+          asset_name: kubetunnel-${{ matrix.os }}
           release_tag: ${{ secrets.GITHUB_REF_NAME }}
   homebrew-releaser:
     runs-on: ubuntu-latest
