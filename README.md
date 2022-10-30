@@ -39,7 +39,7 @@ You can read more about it [here](docs/Architecture.md).
 
 Kubetunnel CLI can be installed through multiple channels.
 
-### Install on Linux/Mac
+### Linux/Mac
 
 Install Kubetunnel CLI from [Kubetunnel tap](https://github.com/kubetunnel/homebrew-tap) with [Homebrew](https://brew.sh) by running:
 
@@ -48,7 +48,7 @@ brew tap we-dcode/tap
 brew install kubetunnel
 ```
 
-### Install on Windows
+### Windows
 
 Download the latest CLI binary - https://github.com/we-dcode/kubetunnel/releases
 
