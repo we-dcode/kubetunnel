@@ -16,8 +16,7 @@ default-cli:
 # Compile CLI - Windows x64
 windows-cli:
 	mkdir -p ${DIR}/windows
-	GOOS=windows GOARCH=amd64 go build ${LDFLAGS} -o ${DIR}/windows/${BINARY}.exe ${ROOT_DIR}/cmd/cli
-	zip ${DIR}/${BINARY}-win.zip ${DIR}/windows/*
+	GOOS=windows GOARCH=amd64 go build ${LDFLAGS} -o ${BINARY} ${ROOT_DIR}/cmd/cli
 # Compile CLI - Linux x64
 linux-cli:
 	mkdir -p ${DIR}/linux
