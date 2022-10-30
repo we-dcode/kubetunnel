@@ -1,7 +1,6 @@
 
-<p align="center">
  ![KubeTunnel Logo](https://via.placeholder.com/150)
-</p>
+
 
 # KubeTunnel
 
