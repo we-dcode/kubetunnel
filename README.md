@@ -82,21 +82,33 @@ kubetunnel --help
 
 For each of the following commands, you can run --help for more options.
 
+### 1. Installing the Operator
 
-1. To install the operator and CRD, run the following command:
+To install the operator and CRDs **using the CLI**, run the following command:
 
 ```bash
 kubetunnel install 
 ```
+
+To install the operator **using a helm chart**, run the following commands:
+
+```bash
+helm repo add we-dcode https://we-dcode.github.io/kubetunnel
+helm install helm install we-dcode/kubetunnel-operator <release name>
+
+```
+
 At this point, the KubeTunnel Kubernetes Operator is successfully installed. Once the KubeTunnel Operator pod is running, you are able to start tunneling processes to your cluster. 
 
-2. For each service you want to tunnel, run the following command:
+### 2. Creating a tunnel
+
+For each Kubernetes service you want to tunnel, run the following command:
 
 ```bash
   sudo -E kubetunnel create-tunnel -p '8080:80' svc_name
 ```
 
-This command waits for the local process to be available with the process you want to tunnel. When the process is up, it is tunneled to cluster and the application service is switched to forward traffic to it. If your local process becomes unavailable, the service is switched back to the original pod.
+This command waits for the local process to be available with the process you want to tunnel.  When the local process is up, it is tunneled to cluster and the application service is switched to forward traffic to it.  If your local process becomes unavailable, the service is switched back to the original pod.
 
 ##  Autocomplete with Kubetunnel CLI
 
@@ -109,15 +121,38 @@ kubetunnel completion --help
 
 See all the available commands and options by running:
 
+
+# Known Limitations
+
+* The current KubeTunnel version can only tunnel a single service per workstation. In the future, we will add support for multiple services.
+
+##  Troubleshooting
+
+**Q**: I'm not able to create a tunnel. What's going on?  
+
+**A**: Check the following things before creating a tunnel:
+1. You are able to connect to the cluster from your workstation. 
+2. You have run the `kubetunnel install` command. 
+3. You can check the logs of the operator pod:    
+   a. Run the command `kubectl get pods -n <operator namespace>`   
+   b. Observe the state of the pod. Is it running or in some kind of error?  
+   c. Run `kubectl logs <operator pod name> -c manager`. Do you see any errors?  
+4. The kubetunnel pods need to be able to connect to the operator pod. Are NetworkPolicies enabled on your cluster? If so, have you created them as seen [here?](./docs/Network.md)
+5. Check the logs of the kubetunnel pod itself. Has it been created? Does it have some kind of error?
+
+**Q**: I'm not able to install the operator. What's going on?  
+
+**A**: Check the following things before creating a tunnel:
+1. You are able to connect to the cluster from your workstation. 
+2. Installing the operator includes installing ClusterRoles, ClusterRoleBindings and CustomResourceDefinitions. Do you have the sufficient privileges to create these resources?
+3. Are you using the latest version of the CLI? If not, try upgrading your version.
+
+
 # Getting support
 
 If you need support using KubeTunnel CLI, please [join our Slack channel](https://we-dcode.slack.com/archives/C047WAUR41M).
 
 Please leave issues for any error or bug that you encounter.
-
-# Known Limitations
-
-* The current KubeTunnel version can only tunnel a single service per workstation. In the future, we will add support for multiple services.
 
 # Contributing
 
