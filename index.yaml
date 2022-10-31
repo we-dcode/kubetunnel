@@ -618,6 +618,23 @@ entries:
   kubetunnel-operator:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2022-10-31T12:41:29.493086454Z"
+    description: A Helm chart for Kubernetes
+    digest: 89c9aba2201463b2b68e084e4f007e815d220e05421bb90416c055ad92218119
+    maintainers:
+    - email: eliran@dcode.tech
+      name: Eliran Wolf
+    - email: maor@dcode.tech
+      name: Maor Davidov
+    - email: tshaul@gmail.com
+      name: tamirshaul
+    name: kubetunnel-operator
+    type: application
+    urls:
+    - https://github.com/we-dcode/kubetunnel/releases/download/kubetunnel-operator-0.0.16/kubetunnel-operator-0.0.16.tgz
+    version: 0.0.16
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2022-10-27T14:07:44.220217412Z"
     description: A Helm chart for Kubernetes
     digest: 3c95e4866634570629315d4ee7d0f3a7cd83478f2aad41c7e0c03246ba1f8ae4
@@ -633,4 +650,4 @@ entries:
     urls:
     - https://github.com/we-dcode/kubetunnel/releases/download/kubetunnel-operator-0.0.15/kubetunnel-operator-0.0.15.tgz
     version: 0.0.15
-generated: "2022-10-27T14:07:44.220400215Z"
+generated: "2022-10-31T12:41:29.493182255Z"
