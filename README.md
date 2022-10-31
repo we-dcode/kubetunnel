@@ -5,7 +5,7 @@
   by <a href="https://dcode.tech">Dcode</a>
 </p>
 
-<img src="./assets/teaser.gif" width="300">
+<img src="./assets/teaser.gif" width="700">
 
 # KubeTunnel: Develop locally while being connected to Kubernetes.
 
