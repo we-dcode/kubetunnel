@@ -7,7 +7,6 @@
 
 # KubeTunnel: Develop locally while being connected to Kubernetes.
 
-![Large GIF of Kubetunnel example](https://aaa) <br><br><br>
 Website: [https://www.dcode.tech/](https://www.dcode.tech)  
 Slack: [Discuss](https://we-dcode.slack.com/archives/C047WAUR41M)
 
