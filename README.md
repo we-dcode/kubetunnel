@@ -5,12 +5,14 @@
   by <a href="https://dcode.tech">Dcode</a>
 </p>
 
-<img src="./assets/teaser.gif" width="1000">
+
 
 # KubeTunnel: Develop locally while being connected to Kubernetes.
 
 Website: [https://www.dcode.tech/](https://www.dcode.tech)  
 Slack: [Discuss](https://we-dcode.slack.com/archives/C047WAUR41M)
+
+<img src="./assets/teaser.gif" width="1000">
 
 **With KubeTunnel:**
 
