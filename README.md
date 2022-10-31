@@ -148,6 +148,26 @@ See all the available commands and options by running:
 3. Are you using the latest version of the CLI? If not, try upgrading your version.
 
 
+## Cleanup
+
+To uninstall resources for a specific tunnel, find the specific tunnel you wish to delete and run the following commands:
+
+```bash
+kubectl get kubetunnel -n <requested namespace> 
+
+# Search for the tunnel you wish to delete
+kubectl delete kubetunnel <name>
+```
+
+To uninstall the operator itself, run the following command after deleting all kubetunnel resources:
+
+```bash
+
+helm ls -n <operator-namespace>
+helm uninstall <release-name> -n <operator-namespace>
+```
+
+
 # Getting support
 
 If you need support using KubeTunnel CLI, please [join our Slack channel](https://we-dcode.slack.com/archives/C047WAUR41M).
