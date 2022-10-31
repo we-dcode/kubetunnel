@@ -9,10 +9,10 @@
 
 # KubeTunnel: Develop locally while being connected to Kubernetes.
 
+<img src="./assets/teaser.gif" width="1000">
+
 Website: [https://www.dcode.tech/](https://www.dcode.tech)  
 Slack: [Discuss](https://we-dcode.slack.com/archives/C047WAUR41M)
-
-<img src="./assets/teaser.gif" width="1000">
 
 **With KubeTunnel:**
 
