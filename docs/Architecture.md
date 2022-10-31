@@ -21,3 +21,10 @@ From you to the cluster:
 From the cluster to you:
 1. Creates a KubeTunnel CR which includes the tunnel from the local process to the cluster.
 2. Changes the application's service labelSelectors to point to this tunnel, "stealing" the traffic from the Kubernetes deployment and moving it to your process.
+
+## Architecture Diagram
+
+<p align="center">
+<img src="../assets/Architecture-extended.png" width="800"><br>
+</p>
+
