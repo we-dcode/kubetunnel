@@ -15,11 +15,9 @@ Each **KubeTunnel server** is composed of a deployment with the following compon
 The **KubeTunnel CLI** achieves the two way connection by doing the following:
 
 From you to the cluster:
-1. Forwards all the cluster services to your local station and modifies your `/etc/hosts` file.
+1. Forwards all the cluster services to your local station and modifies your `hosts` file.
 
 
 From the cluster to you:
 1. Creates a KubeTunnel CR which includes the tunnel from the local process to the cluster.
 2. Changes the application's service labelSelectors to point to this tunnel, "stealing" the traffic from the Kubernetes deployment and moving it to your process.
-
-# Todo - add an architecture image
