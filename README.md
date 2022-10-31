@@ -137,7 +137,7 @@ See all the available commands and options by running:
    a. Run the command `kubectl get pods -n <operator namespace>`   
    b. Observe the state of the pod. Is it running or in some kind of error?  
    c. Run `kubectl logs <operator pod name> -c manager`. Do you see any errors?  
-4. The kubetunnel pods need to be able to connect to the operator pod. Are NetworkPolicies enabled on your cluster? If so, have you created them as seen [here?](./docs/Network.md)
+4. The kubetunnel pods need to be able to connect to the operator pod. Are NetworkPolicies enabled on your cluster? If so, have you created them as seen [here](./docs/Network.md)
 5. Check the logs of the kubetunnel pod itself. Has it been created? Does it have some kind of error?
 
 **Q**: I'm not able to install the operator. What's going on?  
