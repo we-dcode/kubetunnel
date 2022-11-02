@@ -111,7 +111,7 @@ For each Kubernetes service you want to tunnel, run the following command:
   sudo -E kubetunnel create-tunnel -p '8080:80' svc_name
 ```
 
-This command waits for the local process to be available with the process you want to tunnel.  When the local process is up, it is tunneled to cluster and the application service is switched to forward traffic to it.  If your local process becomes unavailable, the service is switched back to the original pod.
+This command waits for the local port to be available with the process you want to tunnel.  When the local process is up, it is tunneled to the cluster and the application service is switched to forward traffic to it.  If your local process becomes unavailable, the service is switched back to the original pod.
 
 ##  Autocomplete with Kubetunnel CLI
 
@@ -121,9 +121,6 @@ For autocomplete for your shell run the following command:
 ```bash
 kubetunnel completion --help
 ```
-
-See all the available commands and options by running:
-
 
 # Known Limitations
 
