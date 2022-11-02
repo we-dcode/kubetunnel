@@ -97,7 +97,7 @@ To install the operator **using a helm chart**, run the following commands:
 
 ```bash
 helm repo add we-dcode https://we-dcode.github.io/kubetunnel
-helm install helm install we-dcode/kubetunnel-operator <release name>
+helm install we-dcode/kubetunnel-operator <release name>
 
 ```
 
