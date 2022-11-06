@@ -3,7 +3,7 @@ name: Release Charts
 on:
   push:
     branches:
-      - feature/network-poller
+      - main
 
 jobs:
   release:
