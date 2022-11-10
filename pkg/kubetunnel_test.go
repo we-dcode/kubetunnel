@@ -17,6 +17,7 @@ func TestRunningKubeTunnelE2E2(t *testing.T) {
 		KubeTunnelPortMap: map[string]string{
 			"8081": "80",
 		},
+		DnsForwardAllNamespaces: true,
 	})
 
 	//assert.NoError(t, err)

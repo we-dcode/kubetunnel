@@ -130,6 +130,24 @@ func (k *Kube) ListServiceNamesWithoutKubeTunnel() (serviceNames []string, err e
 	return
 }
 
+func (k *Kube) ListAllOtherNamespaces(options v1.ListOptions) (namespaces []string, err error) {
+	nsList, err := k.InnerKubeClient.CoreV1().Namespaces().List(context.TODO(), options)
+	if err != nil {
+		return nil, fmt.Errorf("fail get all namespaces by CoreV1, inner error: %s", err.Error())
+	}
+
+	for _, ns := range nsList.Items {
+
+		if ns.Name == k.Namespace {
+			continue
+		}
+
+		namespaces = append(namespaces, ns.Name)
+	}
+
+	return namespaces, nil
+}
+
 func (k *Kube) PortForward(serviceName string, port string) (listeningPort int, err error) {
 
 	service, err := k.GetServiceContext(serviceName)

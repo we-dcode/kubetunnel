@@ -85,10 +85,22 @@ func (splitter *LogOutputSplitter) Write(p []byte) (n int, err error) {
 }
 
 // Execute - This code was copied from kubefwd and modified a bit to support kubetunnel requirements
-func Execute(kubeClient *kube.Kube, frpsValues *models.KubeTunnelResourceSpec, channel chan error) *fwdport.HostFileWithLock {
+func Execute(k *kube.Kube, kubeTunnelResourceSpec *models.KubeTunnelResourceSpec, channel chan error, forwardAllNamespaces bool) *fwdport.HostFileWithLock {
 
 	log.Println("Press [Ctrl-C] to stop forwarding.")
 	log.Println("'cat /etc/hosts' to see all host entries.")
+
+	namespaces := []string{k.Namespace}
+
+	if forwardAllNamespaces {
+
+		otherNamespaces, err := k.ListAllOtherNamespaces(metav1.ListOptions{})
+		if err != nil {
+			log.Panic(err)
+		}
+
+		namespaces = append(namespaces, otherNamespaces...)
+	}
 
 	hostFile, err := txeh.NewHostsDefault()
 	if err != nil {
@@ -113,33 +125,37 @@ func Execute(kubeClient *kube.Kube, frpsValues *models.KubeTunnelResourceSpec, c
 
 	nsWatchesDone := &sync.WaitGroup{} // We'll wait on this to exit the program. Done() indicates that all namespace watches have shutdown cleanly.
 
-	nsWatchesDone.Add(1)
+	nsWatchesDone.Add(len(namespaces))
 
 	configGetter := fwdcfg.NewConfigGetter()
 
 	restClient, _ := configGetter.GetRESTClient()
 
-	nameSpaceOpts := services.NamespaceOpts{
-		ClientSet: *kubeClient.InnerKubeClient,
-		Namespace: kubeClient.Namespace,
+	hostFileWithLock := &fwdport.HostFileWithLock{Hosts: hostFile}
 
-		// For parallelization of ip handout,
-		// each cluster and namespace has its own ip range
-		NamespaceIPLock:   &sync.Mutex{},
-		ListOptions:       metav1.ListOptions{},
-		HostFile:          &fwdport.HostFileWithLock{Hosts: hostFile},
-		ClientConfig:      *kubeClient.Config,
-		Domain:            constants.KubetunnelSlug,
-		RESTClient:        *restClient,
-		ClusterN:          0,
-		NamespaceN:        0,
-		ManualStopChannel: killsignal.CancellationChannel.C,
+	for nsIndex, namespace := range namespaces {
+		nameSpaceOpts := services.NamespaceOpts{
+			ClientSet: *k.InnerKubeClient,
+			Namespace: namespace,
+
+			// For parallelization of ip handout,
+			// each cluster and namespace has its own ip range
+			NamespaceIPLock:   &sync.Mutex{},
+			ListOptions:       metav1.ListOptions{},
+			HostFile:          hostFileWithLock,
+			ClientConfig:      *k.Config,
+			Domain:            constants.KubetunnelSlug,
+			RESTClient:        *restClient,
+			ClusterN:          0,
+			NamespaceN:        nsIndex,
+			ManualStopChannel: killsignal.CancellationChannel.C,
+		}
+
+		go func(npo services.NamespaceOpts) {
+			watchServiceEvents(&nameSpaceOpts, killsignal.CancellationChannel.C)
+			nsWatchesDone.Done()
+		}(nameSpaceOpts)
 	}
-
-	go func(npo services.NamespaceOpts) {
-		watchServiceEvents(&nameSpaceOpts, killsignal.CancellationChannel.C)
-		nsWatchesDone.Done()
-	}(nameSpaceOpts)
 
 	go func() {
 		nsWatchesDone.Wait()
@@ -152,11 +168,11 @@ func Execute(kubeClient *kube.Kube, frpsValues *models.KubeTunnelResourceSpec, c
 	}()
 
 	go func() {
-		WaitUntilKubeTunnelIsUp(frpsValues, fwdsvcregistry.Done())
+		WaitUntilKubeTunnelIsUp(kubeTunnelResourceSpec, fwdsvcregistry.Done())
 		channel <- nil
 	}()
 
-	return nameSpaceOpts.HostFile
+	return hostFileWithLock
 }
 
 func WaitUntilKubeTunnelIsUp(frpsValues *models.KubeTunnelResourceSpec, done <-chan struct{}) {

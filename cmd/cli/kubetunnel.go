@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
+	"strconv"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -112,7 +113,9 @@ func NewInstallKubeTunnelCmd() *cobra.Command {
 
 func NewCreateTunnelCmd() *cobra.Command {
 
-	var kubeConfig, kubetunnelVersion, localIp, namespace, port string
+	var kubeConfig, kubetunnelVersion, namespace, localIp, port string
+	var allNamespaces bool
+	var proxies []string
 
 	svcCmd := &cobra.Command{
 		Use:   "create-tunnel",
@@ -144,6 +147,8 @@ func NewCreateTunnelCmd() *cobra.Command {
 				log.Panicf("port: '%s' is invalid. expected format example: '8080:80'", port)
 			}
 
+			proxiesMap := getProxies(proxies)
+
 			matches := portForwardRegex.FindStringSubmatch(port)
 			localIndex := portForwardRegex.SubexpIndex("local")
 			remoteIndex := portForwardRegex.SubexpIndex("remote")
@@ -155,7 +160,9 @@ func NewCreateTunnelCmd() *cobra.Command {
 				KubeTunnelPortMap: map[string]string{
 					matches[localIndex]: matches[remoteIndex],
 				},
-				LocalIP: localIp,
+				LocalIP:                 localIp,
+				DnsForwardAllNamespaces: allNamespaces,
+				Proxies:                 proxiesMap,
 			})
 
 		},
@@ -165,11 +172,43 @@ func NewCreateTunnelCmd() *cobra.Command {
 	svcCmd.Flags().StringVar(&kubetunnelVersion, "operator-version", Version, fmt.Sprintf("%s's Operator chart version.", constants.KubeTunnelKind))
 	svcCmd.Flags().StringVar(&localIp, "local-ip", "127.0.0.1", "local service binding ip, usually localhost.")
 
-	svcCmd.Flags().StringVarP(&namespace, "namespace", "n", "", "specify namespace, default: taken from kubeconfig's context.")
+	svcCmd.Flags().StringVarP(&namespace, "namespace", "n", "", "specify tunneled service namespace, default: taken from kubeconfig's context.")
+
+	svcCmd.Flags().BoolVarP(&allNamespaces, "resolve-all-namespaces", "A", false, "DNS resolve from local machine to all namespaces, default resolves only tunneled service namespace.")
+	svcCmd.Flags().StringSliceVarP(&proxies, "proxy", "p", nil, "specify address to proxy. for example: private cloud DB instance. expected format: \"Address:Port\". can be used multiple times.")
 
 	// TODO: Change port to []string and allow multi -p ...
 	svcCmd.Flags().StringVarP(&port, "port", "p", "", "localPort:remotePort (example: 8080:80).")
 	svcCmd.MarkFlagRequired("port")
 
 	return svcCmd
+}
+
+func getProxies(proxies []string) map[string]int {
+	proxiesRegex := regexp.MustCompile("(?P<address>.+):(?P<port>\\d+)")
+
+	proxyMap := map[string]int{}
+	var err error
+
+	if len(proxies) > 0 {
+
+		for _, proxy := range proxies {
+
+			if proxiesRegex.MatchString(proxy) == false {
+
+				log.Panicf("proxy: '%s' invalid format. expected format example: 'postgres.dfv7txrpzu6m.us-east-1.rds.amazonaws.com:5432'", proxy)
+			}
+
+			matches := proxiesRegex.FindStringSubmatch(proxy)
+			addressIndex := proxiesRegex.SubexpIndex("address")
+			portIndex := proxiesRegex.SubexpIndex("port")
+
+			if proxyMap[matches[addressIndex]], err = strconv.Atoi(matches[portIndex]); err != nil {
+
+				log.Panicf("proxy: unable to parse port, internal error: %s", err.Error())
+			}
+		}
+	}
+
+	return proxyMap
 }

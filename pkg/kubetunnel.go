@@ -22,9 +22,11 @@ type KubeTunnel struct {
 }
 
 type KubeTunnelConf struct {
-	ServiceName       string
-	KubeTunnelPortMap map[string]string
-	LocalIP           string
+	ServiceName             string
+	KubeTunnelPortMap       map[string]string
+	LocalIP                 string
+	DnsForwardAllNamespaces bool
+	Proxies                 map[string]int
 }
 
 func MustNewKubeTunnel(kubeConfig string, namespace string, privileged bool) *KubeTunnel {
@@ -91,7 +93,7 @@ func (ct *KubeTunnel) CreateTunnel(tunnelConf KubeTunnelConf) {
 	var hostFile *fwdport.HostFileWithLock
 
 	go func(ktrs *models.KubeTunnelResourceSpec) {
-		hostFile = kubefwd.Execute(ct.kubeClient, ktrs, kubefwdSyncChannel)
+		hostFile = kubefwd.Execute(ct.kubeClient, ktrs, kubefwdSyncChannel, tunnelConf.DnsForwardAllNamespaces)
 	}(&kubeTunnelResourceSpec)
 
 	err = <-kubefwdSyncChannel

@@ -16,6 +16,7 @@ type KubeTunnelResourceSpec struct {
 	Ports       Ports             `json:"env_ports" yaml:"env_ports"`
 	ServiceName string            `json:"env_service_name,omitempty" yaml:"env_service_name,omitempty"`
 	PodLabels   map[string]string `json:"pod_labels,omitempty" yaml:"pod_labels,omitempty"`
+	Proxies     map[string]int    `json:"proxy,omitempty" yaml:"proxy,omitempty"`
 }
 
 func (v *KubeTunnelResourceSpec) KubeTunnelServiceName() string {
