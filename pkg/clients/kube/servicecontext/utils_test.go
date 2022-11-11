@@ -26,13 +26,12 @@ func TestServiceContextToFRPSValues(t *testing.T) {
 		},
 	}
 
-	values := servicecontext.ToKubeTunnelResourceSpec(&svcContext)
+	values := servicecontext.ToKubeTunnelResourceSpec(&svcContext, nil, nil)
 
 	assert.NotNil(t, values)
 
 	assert.Equal(t, svcContext.ServiceName, values.ServiceName)
 	assert.Len(t, values.Ports.Values, 2)
-	assert.Len(t, values.PodSelectorLabels, 3)
 }
 
 func TestWhenCallingToFRPClientPairs_AndNotAllPortMapFound_MapOnlyExistingPorts(t *testing.T) {

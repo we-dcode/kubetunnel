@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-func ToKubeTunnelResourceSpec(ctx *ServiceContext, podLabels map[string]string) kubeTunnelModels.KubeTunnelResourceSpec {
+func ToKubeTunnelResourceSpec(ctx *ServiceContext, podLabels map[string]string, proxies map[string]int) kubeTunnelModels.KubeTunnelResourceSpec {
 
 	var ports []string
 
@@ -32,6 +32,7 @@ func ToKubeTunnelResourceSpec(ctx *ServiceContext, podLabels map[string]string) 
 		Ports:       kubeTunnelModels.Ports{Values: ports},
 		ServiceName: ctx.ServiceName,
 		PodLabels:   podLabels,
+		Proxies:     proxies,
 	}
 }
 

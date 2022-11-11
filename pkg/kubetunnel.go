@@ -13,6 +13,7 @@ import (
 	frpmodels "github.com/we-dcode/kube-tunnel/pkg/frp/models"
 	"github.com/we-dcode/kube-tunnel/pkg/kubefwd"
 	"github.com/we-dcode/kube-tunnel/pkg/models"
+	"github.com/we-dcode/kube-tunnel/pkg/utils/hostsutils"
 	"github.com/we-dcode/kube-tunnel/pkg/utils/maputils"
 	"os"
 )
@@ -83,7 +84,7 @@ func (ct *KubeTunnel) CreateTunnel(tunnelConf KubeTunnelConf) {
 		log.Panic(err.Error())
 	}
 
-	kubeTunnelResourceSpec := servicecontext.ToKubeTunnelResourceSpec(svcCtx, labels)
+	kubeTunnelResourceSpec := servicecontext.ToKubeTunnelResourceSpec(svcCtx, labels, tunnelConf.Proxies)
 
 	if err = ct.kubeClient.CreateKubeTunnelResource(kubeTunnelResourceSpec); err != nil {
 
@@ -116,12 +117,15 @@ func (ct *KubeTunnel) CreateTunnel(tunnelConf KubeTunnelConf) {
 
 	if ok, localIP, _ := hostFile.Hosts.HostAddressLookup(common.ServerAddress); ok {
 
-		keys := maputils.Keys(tunnelConf.Proxies)
-		hostFile.Hosts.AddHosts(localIP, keys)
+		proxyDNSim := maputils.Keys(tunnelConf.Proxies)
+		proxyDNSim = append(proxyDNSim, fmt.Sprintf("%s.%s", proxyDNSim[0], constants.KubetunnelSlug))
+		hostFile.Hosts.AddHosts(localIP, proxyDNSim)
 		hostFile.Hosts.Save()
 	}
 
 	frpcManager.RunFRPc()
+	hostsutils.HostsCleanup(hostFile.Hosts)
+	hostFile.Hosts.Save()
 }
 
 func CheckRootPermissions() error {

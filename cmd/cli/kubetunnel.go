@@ -175,7 +175,7 @@ func NewCreateTunnelCmd() *cobra.Command {
 	svcCmd.Flags().StringVarP(&namespace, "namespace", "n", "", "specify tunneled service namespace, default: taken from kubeconfig's context.")
 
 	svcCmd.Flags().BoolVarP(&allNamespaces, "resolve-all-namespaces", "A", false, "DNS resolve from local machine to all namespaces, default resolves only tunneled service namespace.")
-	svcCmd.Flags().StringSliceVarP(&proxies, "proxy", "p", nil, "specify address to proxy. for example: private cloud DB instance. expected format: \"Address:Port\". can be used multiple times.")
+	svcCmd.Flags().StringSliceVar(&proxies, "proxy", nil, "specify address to proxy. for example: private cloud DB instance. expected format: \"Address:Port\". can be used multiple times.")
 
 	// TODO: Change port to []string and allow multi -p ...
 	svcCmd.Flags().StringVarP(&port, "port", "p", "", "localPort:remotePort (example: 8080:80).")
@@ -185,10 +185,11 @@ func NewCreateTunnelCmd() *cobra.Command {
 }
 
 func getProxies(proxies []string) map[string]int {
-	proxiesRegex := regexp.MustCompile("(?P<address>.+):(?P<port>\\d+)")
+	proxiesRegex := regexp.MustCompile("(?P<address>.+):(?P<port>[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$")
 
-	proxyMap := map[string]int{}
 	var err error
+	proxyMap := map[string]int{}
+	proxyCount := map[int]int{}
 
 	if len(proxies) > 0 {
 
@@ -206,6 +207,13 @@ func getProxies(proxies []string) map[string]int {
 			if proxyMap[matches[addressIndex]], err = strconv.Atoi(matches[portIndex]); err != nil {
 
 				log.Panicf("proxy: unable to parse port, internal error: %s", err.Error())
+			}
+
+			proxyPort := proxyMap[matches[addressIndex]]
+			proxyCount[proxyPort]++
+
+			if proxyCount[proxyPort] > 1 {
+				log.Panic("proxy: there are two proxies on the same port. it is not supported, please remove one of them or change proxy port.")
 			}
 		}
 	}

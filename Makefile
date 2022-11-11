@@ -4,7 +4,7 @@ DIR=$(ROOT_DIR)/build
 BINARY=kubetunnel
 $(shell mkdir -p ${DIR})
 
-APP_VERSION="0.3.0" # TODO: get this one from env var
+APP_VERSION="0.3.1" # TODO: get this one from env var
 OPERATOR_VERSION="0.0.16"
 KUBETUNNEL_VERSION="1.1.4"
 # Go build flags
