@@ -18,6 +18,9 @@ func TestRunningKubeTunnelE2E2(t *testing.T) {
 			"8081": "80",
 		},
 		DnsForwardAllNamespaces: true,
+		Proxies: map[string]int{
+			"postgres.dfv7txrpzu6m.us-east-1.rds.amazonaws.com": 5432,
+		},
 	})
 
 	//assert.NoError(t, err)

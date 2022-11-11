@@ -13,6 +13,7 @@ import (
 	frpmodels "github.com/we-dcode/kube-tunnel/pkg/frp/models"
 	"github.com/we-dcode/kube-tunnel/pkg/kubefwd"
 	"github.com/we-dcode/kube-tunnel/pkg/models"
+	"github.com/we-dcode/kube-tunnel/pkg/utils/maputils"
 	"os"
 )
 
@@ -112,6 +113,13 @@ func (ct *KubeTunnel) CreateTunnel(tunnelConf KubeTunnelConf) {
 	servicePortsPairs := servicecontext.ToFRPClientPairs(tunnelConf.LocalIP, tunnelConf.KubeTunnelPortMap, svcCtx)
 
 	frpcManager := frpc.NewManager(common, servicePortsPairs, hostFile)
+
+	if ok, localIP, _ := hostFile.Hosts.HostAddressLookup(common.ServerAddress); ok {
+
+		keys := maputils.Keys(tunnelConf.Proxies)
+		hostFile.Hosts.AddHosts(localIP, keys)
+		hostFile.Hosts.Save()
+	}
 
 	frpcManager.RunFRPc()
 }
