@@ -13,5 +13,10 @@ spec:
       port: {{$v.servicePort | default $v.port}}
       protocol: {{$v.protocol | default "TCP"}}
     {{- end}}
+    {{- range $k, $v := .Values.proxy}}
+    - protocol: TCP
+      port: {{ $v }}
+      targetPort: {{ $v }}
+    {{- end}}
   selector:
     kubetunnel-app: {{  .Values.env_service_name }}

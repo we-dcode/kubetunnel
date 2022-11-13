@@ -1,0 +1,9 @@
+{{- if .Values.proxy -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-envoy-conf
+data:
+{{ tpl (.Files.Glob "files/envoy_config/*").AsConfig . | indent 2 }}
+{{- end }}
+

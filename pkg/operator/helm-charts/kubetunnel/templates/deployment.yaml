@@ -73,6 +73,28 @@ spec:
             {{- end}}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+        {{- if .Values.proxy }}
+        - name: envoy
+          image: envoyproxy/envoy:v1.22-latest
+          args:
+            - -c
+            - /etc/envoy/bootstrap.yaml
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              cpu: 10m
+              memory: 256Mi
+          readinessProbe:
+            periodSeconds: 10
+            httpGet:
+              path: /ready
+              port: 19901
+          volumeMounts:
+            - mountPath: /etc/envoy
+              name: envoy
+        {{- end}}
+
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -101,3 +123,8 @@ spec:
             secretName: {{ .Release.Name }}-health
             {{- end}}
             defaultMode: 0777
+        {{- if .Values.proxy }}
+        - name: envoy
+          configMap:
+            name: envoy
+        {{- end}}

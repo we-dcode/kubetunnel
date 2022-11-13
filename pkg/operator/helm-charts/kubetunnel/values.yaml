@@ -8,6 +8,9 @@ image:
 serviceMonitor:
   enable: false
 
+proxy: 
+  # "mongo": 27017
+
 # frp server configuration
 configInline: |
   [common]
