@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feature/multiple_namespaces_and_proxy
 
 jobs:
   release:
