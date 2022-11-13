@@ -92,7 +92,7 @@ spec:
               port: 19901
           ports:
             {{- range $k,$v := .Values.proxy}}
-            - name: proxy_{{$v}}
+            - name: proxy-{{$v}}
               containerPort: {{$v}}
               protocol: TCP
             {{- end}}

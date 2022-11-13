@@ -14,7 +14,7 @@ spec:
       protocol: {{$v.protocol | default "TCP"}}
     {{- end}}
     {{- range $k, $v := .Values.proxy}}
-    - name: proxy_{{$v}}
+    - name: proxy-{{$v}}
       protocol: TCP
       port: {{ $v }}
       targetPort: {{ $v }}
