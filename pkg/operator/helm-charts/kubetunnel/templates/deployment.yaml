@@ -126,5 +126,5 @@ spec:
         {{- if .Values.proxy }}
         - name: envoy
           configMap:
-            name: envoy
+            name: {{ .Release.Name }}-envoy-conf
         {{- end}}

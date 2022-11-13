@@ -9,7 +9,14 @@ serviceMonitor:
   enable: false
 
 proxy: 
-  # "mongo": 27017
+  dcode.tech: 443
+
+operator:
+  namespace: default
+  service:
+    name: kubetunnel-operator
+    port: 6969
+
 
 # frp server configuration
 configInline: |
