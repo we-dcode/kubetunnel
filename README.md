@@ -170,7 +170,7 @@ helm uninstall <release-name> -n <operator-namespace>
 
 # Getting support
 
-If you need support using KubeTunnel CLI, please [join our Slack channel](https://we-dcode.slack.com/archives/C047WAUR41M).
+If you need support using KubeTunnel CLI, please [join our Slack channel](https://join.slack.com/t/we-dcode/shared_invite/zt-1kfg6u0d2-hICXM19FWTEP~PCWoyBZww).
 
 Please leave issues for any error or bug that you encounter.
 
