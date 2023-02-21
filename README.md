@@ -2,7 +2,7 @@
 
 <p align="center" styles="background-color: white">
 <img src="./assets/logo.svg" width="300"><br>
-  by <a href="https://dcode.tech">Dcode</a>
+  by <a href="https://dcode.tech">Dcode.tech</a>
 </p>
 
 
